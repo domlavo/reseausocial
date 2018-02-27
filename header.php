@@ -1,5 +1,7 @@
 <?php
 
+require 'persistance.php';
+
 function renderHeader() {
 	ob_start();
 	?>
@@ -11,6 +13,10 @@ function renderHeader() {
 	<body>
 	<?php
 	return ob_get_clean();
+}
+
+function recuperePersistance() {
+	return Persistance::Instance();
 }
 
 ?>
