@@ -13,7 +13,7 @@ function renderHeader() {
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 		<script src="https://apis.google.com/js/platform.js" async defer></script>
 		<meta name="google-signin-scope" content="profile email">
-		<meta name="google-signin-client_id" content="924453145091-qc766r3o6jboklodlm655e1v5tirmf43.apps.googleusercontent.com">
+		<meta name="google-signin-client_id" content="924453145091-bimpqadjldumttdr59i5vr2fpc15ehq4.apps.googleusercontent.com">
 		<link rel="stylesheet" href="/css/main.css">
 	</head>
 	<body>
