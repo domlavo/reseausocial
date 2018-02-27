@@ -29,6 +29,10 @@ final class Persistance {
     }
   }
 
+  public function test() {
+    
+  }
+
 }
 
 ?>
