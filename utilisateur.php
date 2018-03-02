@@ -8,15 +8,15 @@ class Utilisateur {
   public $nom;
   public $prenom;
   public $nb_session;
-  public $loginId;
+  public $loginID;
   public $specialite;
 
-  public function __construct($nom, $prenom, $nb_session, $loginId, $specialite)
+  public function __construct($nom, $prenom, $nb_session, $loginID, $specialite)
   {
     $this->nom = $nom;
     $this->prenom = $prenom;
     $this->nb_session = $nb_session;
-    $this->loginId = $loginId;
+    $this->loginID = $loginID;
     $this->specialite = $specialite;
   }
 
@@ -25,8 +25,8 @@ class Utilisateur {
   }
 
   public function estValide() {
-    $int = isInt($this->nb_session) && isInt($this->loginId) && isInt($this->specialite);
-    $hasValue = $this->nom != "" && $this->prenom != "" && $this->nb_session != "" && $this->loginId != "" && $this->specialite != "";
+    $int = isInt($this->nb_session) && isInt($this->loginID) && isInt($this->specialite);
+    $hasValue = $this->nom != "" && $this->prenom != "" && $this->nb_session != "" && $this->loginID != "" && $this->specialite != "";
     return $int && $hasValue;
   }
 

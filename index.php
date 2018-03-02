@@ -8,7 +8,7 @@ if(isset($_POST['loginID'])) {
   $utilisateur = $persistance->recupererUtilisateur($_POST['loginID']);
   if ($utilisateur != null) {
     session_start();
-    $_SESSION['loginID'] = $utilisateur->loginId;
+    $_SESSION['loginID'] = $utilisateur->loginID;
     header('Location: profile.php');
   } else {
     if(isset($_POST['nom'])) {
@@ -16,7 +16,7 @@ if(isset($_POST['loginID'])) {
 
       if( $persistance->ajouterUtilisateur($nouveauUtilisateur) ) {
         session_start();
-        $_SESSION['loginID'] = $nouveauUtilisateur->loginId;
+        $_SESSION['loginID'] = $nouveauUtilisateur->loginID;
         header('Location: profile.php');
       }
 
