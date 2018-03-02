@@ -30,6 +30,21 @@ class Utilisateur {
     return $int && $hasValue;
   }
 
+  public function afficher() {
+    ob_start();
+    ?>
+    <div class="profile-banner">
+      <div class="profile-avatar">
+        <img class="profile-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+      </div>
+      <div class="profile-nom">
+        <h3><?= $this->prenom . ' ' . $this->nom ?></h3>
+      </div>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
 }
 
 ?>

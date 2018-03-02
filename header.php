@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 require 'persistance.php';
 
@@ -24,13 +27,18 @@ function renderHeader() {
         gapi.auth2.init();
       });
     }
-</script>
+	</script>
 	<?php
 	return ob_get_clean();
 }
 
 function recupererPersistance() {
 	return Persistance::Instance();
+}
+
+function verifierConnection() {
+	$loginID = $_SESSION['loginID'];
+	return recupererPersistance()->recupererUtilisateur($loginID);
 }
 
 ?>

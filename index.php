@@ -1,4 +1,8 @@
 <?php
+session_start();
+session_destroy();
+session_start();
+
 require 'header.php';
 require 'footer.php';
 
@@ -7,17 +11,16 @@ if(isset($_POST['loginID'])) {
   $persistance = Persistance::Instance();
   $utilisateur = $persistance->recupererUtilisateur($_POST['loginID']);
   if ($utilisateur != null) {
-    session_start();
+    print_r($utilisateur);
     $_SESSION['loginID'] = $utilisateur->loginID;
-    header('Location: profile.php');
+    header('Location: profile.php?utilisateur='.$utilisateur->loginID);
   } else {
-    if(isset($_POST['nom'])) {
+    if(isset($_POST['nb_session'])) {
       $nouveauUtilisateur = new Utilisateur($_POST['nom'], $_POST['prenom'], $_POST['nb_session'], $_POST['loginID'], $_POST['specialite']);
 
       if( $persistance->ajouterUtilisateur($nouveauUtilisateur) ) {
-        session_start();
         $_SESSION['loginID'] = $nouveauUtilisateur->loginID;
-        header('Location: profile.php');
+        header('Location: profile.php?utilisateur='.$nouveauUtilisateur->loginID);
       }
 
     }

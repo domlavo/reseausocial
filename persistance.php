@@ -32,15 +32,16 @@ final class Persistance {
   }
 
   public function recupererUtilisateur($loginID) {
-    $sql = "SELECT  count(*) FROM utilisateur WHERE loginID='$loginID';";
+    $sql = "SELECT  * FROM utilisateur WHERE loginID='$loginID';";
     $resultat = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-    if($resultat[0]["count(*)"] == "0") {
-      return null;
-    } else {
+    if( !empty($resultat) ) {
       $utilisateur = new Utilisateur($resultat[0]['nom'], $resultat[0]['prenom'], $resultat[0]['nb_session'], $resultat[0]['loginID'], $resultat[0]['fk_specialite']);
       $utilisateur->setId($resultat[0]['pk_utilisateur']);
       return $utilisateur;
     }
+    echo $sql;
+    die();
+    return null;
   }
 
   public function ajouterUtilisateur($utilisateur) {
@@ -50,7 +51,7 @@ final class Persistance {
 
     try {
       $sql = "INSERT INTO utilisateur (nom, prenom, nb_session, loginID, fk_specialite)
-      VALUES ('$utilisateur->nom','$utilisateur->prenom',$utilisateur->nb_session,$utilisateur->loginID,$utilisateur->specialite);";
+      VALUES ('$utilisateur->nom','$utilisateur->prenom',$utilisateur->nb_session,'$utilisateur->loginID',$utilisateur->specialite);";
       $stmt = $this->db->prepare($sql);
       $stmt->execute();
     } catch(Exception $e){
