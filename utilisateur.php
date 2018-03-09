@@ -1,6 +1,6 @@
 <?php
 
-require 'helper.php';
+require_once 'helper.php';
 
 class Utilisateur {
 
@@ -33,16 +33,28 @@ class Utilisateur {
   public function afficher() {
     ob_start();
     ?>
-    <div class="profile-banner">
+    <div class="profile-banner" style="background-image: url(https://www.splitshire.com/wp-content/uploads/2014/11/SplitShire-03692-1800x1200.jpg);">
       <div class="profile-avatar">
         <img class="profile-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
       </div>
       <div class="profile-nom">
         <h3><?= $this->prenom . ' ' . $this->nom ?></h3>
       </div>
+      <div class="profile-stat-group">
+        <p class="profile-stat"><?= $this->nb_session ?></p>
+        <p>Nombre de sessions</p>
+      </div>
+      <div class="profile-stat-group">
+        <p class="profile-stat"><?= $this->specialite ?></p>
+        <p>Spécialité</p>
+      </div>
     </div>
     <?php
     return ob_get_clean();
+  }
+
+  public function equals( $autre ) {
+    return is_a($autre, 'Utilisateur') && $this->loginID == $autre->loginID;
   }
 
 }

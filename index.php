@@ -3,14 +3,14 @@ session_start();
 session_destroy();
 session_start();
 
-require 'header.php';
-require 'footer.php';
+require_once 'header.php';
+require_once 'footer.php';
 
 $utilisateur = null;
 if(isset($_POST['loginID'])) {
-  $persistance = Persistance::Instance();
+  $persistance = recupererPersistance();
   $utilisateur = $persistance->recupererUtilisateur($_POST['loginID']);
-  if ($utilisateur != null) {
+  if ($utilisateur) {
     print_r($utilisateur);
     $_SESSION['loginID'] = $utilisateur->loginID;
     header('Location: profile.php?utilisateur='.$utilisateur->loginID);
@@ -44,7 +44,7 @@ if(!isset($_POST['loginID'])) {
     <input id="loginID" type="hidden" name="loginID" value="">
     <input id="nom" type="hidden" name="nom" value="">
     <input id="prenom" type="hidden" name="prenom" value="">
-    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="light" data-longtitle="true"></div>
   </form>
 </div>
 
@@ -62,7 +62,7 @@ if(!isset($_POST['loginID'])) {
 
 <?php
 } else {
-  if ($utilisateur == null) {
+  if (!$utilisateur) {
     ?>
 
 <div class="card card-container">
