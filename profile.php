@@ -39,6 +39,7 @@ echo afficherNavigationPrincipale();
         </div>
       <?php } ?>
       <script type="text/javascript">
+      (function($) {
       $(function() {
         $("#ajouter-publication-form").on("submit", function(e) {
           e.preventDefault();
@@ -120,7 +121,7 @@ echo afficherNavigationPrincipale();
             $("#modalSupprimerPublication").modal("hide");
           });
         });
-
+        /*
         $(".publication-actions .vote").on("click", function(e) {
           e.preventDefault();
           var pubid = $(this).closest(".publication-actions").data("pubid");
@@ -140,8 +141,10 @@ echo afficherNavigationPrincipale();
             }
           });
         });
+        */
 
       });
+      })(jQuery);
       </script>
       <ul id="publication-container" class="publication-container">
       <?php
