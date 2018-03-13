@@ -92,8 +92,8 @@ class Publication implements IAjouter, ISupprimer
         </div>
         <div class="publication-actions" data-pubid=<?= $this->id ?>>
           <a href="#" class="fa fa-reply"></a>
-          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote"></a>
-          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote"></a>
+          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
+          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
           <?php if($this->utilisateur->equals($utilisateur)) : ?>
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>
@@ -151,8 +151,8 @@ class Commentaire extends Publication {
           <p><?= $this->texte ?></p>
         </div>
         <div class="publication-actions" data-pubid=<?= $this->id ?>>
-          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote"></a>
-          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote"></a>
+          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
+          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
           <?php if($this->utilisateur->equals($utilisateur)) : ?>
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>

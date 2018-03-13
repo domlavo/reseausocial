@@ -143,6 +143,7 @@ class Ajax {
         array(
           'pubid' => '',
           'vote' => '',
+          'isActive' => '',
         ),
         $params
       )
@@ -159,6 +160,25 @@ class Ajax {
       echo json_encode($reponse);
       die();
     }
+
+    if( $vote != 1 && $vote != -1 ) {
+      echo json_encode($reponse);
+      die();
+    }
+
+    if( $isActive === 'true' )
+      $vote = 0;
+
+    $retourVote = recupererPersistance()->votePublication($pubid, $utilisateur->id, $vote);
+
+    if( $retourVote ) {
+      $reponse = array('status' => 'success');
+      $reponse['vote'] = $vote;
+      echo json_encode($reponse);
+      die();
+    }
+    echo json_encode($reponse);
+    die();
 
   }
 

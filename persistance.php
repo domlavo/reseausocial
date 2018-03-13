@@ -110,8 +110,8 @@ final class Persistance {
           $user->setId($value['userPubId']);
           $publication = new Publication($value['textePub'], $value['type'], $user, null, $value['specialite']);
           $publication->setId($value['idPub']);
-          //$publication->setNbVotes($value['votePub']);
-          //$publication->setVoteUtilisateur($value['votePubUser']);
+          $publication->setNbVotes($value['votePub']);
+          $publication->setVoteUtilisateur($value['votePubUser']);
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {
@@ -119,6 +119,14 @@ final class Persistance {
           $user->setId($value['userComId']);
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
+          if(isset($value['voteCom']))
+            $commentaire->setNbVotes($value['voteCom']);
+          else
+            $commentaire->setNbVotes(0);
+          if(isset($value['voteCom']))
+            $commentaire->setVoteUtilisateur($value['voteComUser']);
+          else
+            $commentaire->setVoteUtilisateur(0);
           $publications[$value['idPub']]->ajouterCommentaire($commentaire);
         }
       } catch (Exception $e) {}
@@ -168,6 +176,25 @@ final class Persistance {
       return $e->getMessage();
     }
 
+    return true;
+
+  }
+
+  public function votePublication($pubId, $utilisateur, $vote) {
+
+    try {
+      $stmt = $this->db->prepare("INSERT INTO vote (fk_publication, fk_utilisateur, valeur)
+                                  VALUES (?, ?, ?);");
+      $stmt->execute(array($pubId, $utilisateur, $vote));
+    } catch(Exception $e){
+      try {
+        $stmt = $this->db->prepare("UPDATE vote SET valeur = ?
+                                    WHERE fk_publication = ? AND fk_utilisateur = ?;");
+        $stmt->execute(array($vote, $pubId, $utilisateur));
+      } catch(Exception $e){
+        return false;
+      }
+    }
     return true;
 
   }
