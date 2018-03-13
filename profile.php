@@ -15,7 +15,7 @@ if(!$profile) {
   header('Location: index.php');
 }
 
-$publications = recupererPersistance()->recupererPublication($profile);
+$publications = recupererPersistance()->recupererPublication($profile, $utilisateur);
 
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
@@ -118,6 +118,26 @@ echo afficherNavigationPrincipale();
               $("#"+jsonResponse.publication).remove();
             }
             $("#modalSupprimerPublication").modal("hide");
+          });
+        });
+
+        $(".publication-actions .vote").on("click", function(e) {
+          e.preventDefault();
+          var pubid = $(this).closest(".publication-actions").data("pubid");
+          var vote = $(this).data("vote");
+          var datas = { name: "pubid", value: pubid },
+                      { name: "vote", value: vote },
+                      { name: "action", value: "likePublication" };
+          var icon = $(this);
+          $.ajax({
+            type : "post",
+            url : "ajax.php",
+            data : datas,
+          }).done(function (response) {
+            var jsonResponse = JSON.parse(response);
+            if(jsonResponse.status == "success") {
+              $(icon).addClass("active");
+            }
           });
         });
 

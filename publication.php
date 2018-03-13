@@ -11,6 +11,8 @@ class Publication implements IAjouter, ISupprimer
   protected $parent;
   protected $specialite;
   protected $commentaires;
+  protected $nbVotes;
+  protected $voteUtilisateur;
 
   function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null )
   {
@@ -30,6 +32,14 @@ class Publication implements IAjouter, ISupprimer
 
   final public function getParentId() {
     return $this->parent;
+  }
+
+  final public function setNbVotes($nbVotes) {
+    $this->nbVotes = $nbVotes;
+  }
+
+  final public function setVoteUtilisateur($voteUtilisateur) {
+    $this->voteUtilisateur = $voteUtilisateur;
   }
 
   public function ajouterCommentaire($commentaire) {
@@ -57,6 +67,14 @@ class Publication implements IAjouter, ISupprimer
     );
   }
 
+  public function determinerClass($thumbs) {
+    if( $thumbs == 'up' && $this->voteUtilisateur == 1 )
+      return ' active';
+      if( $thumbs == 'down' && $this->voteUtilisateur == -1 )
+        return ' active';
+      return '';
+  }
+
   public function afficher($utilisateur, $fadeOut = false) {
     $class = $fadeOut ? ' fadeOut' : '';
     ob_start();
@@ -74,8 +92,8 @@ class Publication implements IAjouter, ISupprimer
         </div>
         <div class="publication-actions" data-pubid=<?= $this->id ?>>
           <a href="#" class="fa fa-reply"></a>
-          <a href="#" class="fa fa-thumbs-o-up"></a>
-          <a href="#" class="fa fa-thumbs-o-down"></a>
+          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote"></a>
+          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote"></a>
           <?php if($this->utilisateur->equals($utilisateur)) : ?>
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>
@@ -133,8 +151,8 @@ class Commentaire extends Publication {
           <p><?= $this->texte ?></p>
         </div>
         <div class="publication-actions" data-pubid=<?= $this->id ?>>
-          <a href="#" class="fa fa-thumbs-o-up"></a>
-          <a href="#" class="fa fa-thumbs-o-down"></a>
+          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote"></a>
+          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote"></a>
           <?php if($this->utilisateur->equals($utilisateur)) : ?>
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>

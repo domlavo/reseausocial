@@ -23,7 +23,7 @@ final class Persistance {
   {
     try
     {
-      $this->db = new PDO('mysql:host=info10.cegepthetford.ca;dbname='. $this->dbName, $this->usernameBD, $this->passwordBD,array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+      $this->db = new PDO('mysql:host=206.167.23.182;dbname='. $this->dbName, $this->usernameBD, $this->passwordBD,array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
       $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
     catch(PDOexception $e)
@@ -60,29 +60,37 @@ final class Persistance {
 
   }
 
-  public function recupererPublication($utilisateur) {
+  public function recupererPublication($profile, $utilisateur) {
 
-    if( !is_a($utilisateur, 'Utilisateur') )
+    if( !is_a($utilisateur, 'Utilisateur') || !is_a($profile, 'Utilisateur') )
       return false;
 
     $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
-                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub',
-                        pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
-                        pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
-                        com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
-                        com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
-                        comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
-                        comUser.fk_specialite AS 'userComSpe'
-                FROM publication pub
-                LEFT JOIN utilisateur pubUser
-                	ON pub.fk_utilisateur = pubUser.pk_utilisateur
-                LEFT JOIN publication com
-                	ON pub.pk_publication = com.fk_publication
-                LEFT JOIN utilisateur comUser
-                	ON com.fk_utilisateur = comUser.pk_utilisateur
-                WHERE pub.fk_utilisateur = ? AND pub.fk_publication IS NULL
-                ORDER BY pub.date_creation DESC, com.date_creation ASC;";
-    $valeurs = array( $utilisateur->id );
+                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser',
+                    		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
+                    		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
+                    		com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
+                    		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
+                    		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
+                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'comPub', comUserVote.valeur AS 'voteComUser'
+                    FROM publication pub
+                    LEFT JOIN utilisateur pubUser
+                    	ON pub.fk_utilisateur = pubUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
+                    	ON pub.pk_publication = pubVote.fk_publication
+                    LEFT JOIN vote pubUserVote
+                    	ON pub.pk_publication = pubUserVote.fk_publication AND pubUserVote.fk_utilisateur = ?
+                    LEFT JOIN publication com
+                    	ON pub.pk_publication = com.fk_publication
+                    LEFT JOIN utilisateur comUser
+                    	ON com.fk_utilisateur = comUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) comVote
+                    	ON com.pk_publication = comVote.fk_publication
+                    LEFT JOIN vote comUserVote
+                    	ON com.pk_publication = comUserVote.fk_publication AND comUserVote.fk_utilisateur = ?
+                    WHERE pub.fk_utilisateur = ? AND pub.fk_publication IS NULL
+                    ORDER BY pub.date_creation DESC, com.date_creation ASC;";
+    $valeurs = array( $utilisateur->id, $utilisateur->id, $profile->id );
 
     $resultat = array();
     try {
@@ -102,6 +110,8 @@ final class Persistance {
           $user->setId($value['userPubId']);
           $publication = new Publication($value['textePub'], $value['type'], $user, null, $value['specialite']);
           $publication->setId($value['idPub']);
+          //$publication->setNbVotes($value['votePub']);
+          //$publication->setVoteUtilisateur($value['votePubUser']);
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {

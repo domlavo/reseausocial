@@ -328,6 +328,16 @@ p {
     transition: all .15s ease-in-out;
 }
 
+.publication-actions a.fa.fa-thumbs-o-up.active:before {
+    content: '\f164';
+    color: #4dcadd;
+}
+
+.publication-actions a.fa.fa-thumbs-o-down.active:before {
+    content: '\f165';
+    color: #4dcadd;
+}
+
 .publication-actions a:hover:before {
     color: rgba(0,0,0,.42);
 }

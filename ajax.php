@@ -137,6 +137,31 @@ class Ajax {
     }
   }
 
+  public static function likePublication(array $params = array()) {
+    extract(
+      extractArgs(
+        array(
+          'pubid' => '',
+          'vote' => '',
+        ),
+        $params
+      )
+    );
+
+    $reponse = array('status' => 'error');
+    if($vote != 1 && $vote != 0 && $vote != -1) {
+      echo json_encode($reponse);
+      die();
+    }
+
+    $utilisateur = verifierConnection();
+    if(!$utilisateur) {
+      echo json_encode($reponse);
+      die();
+    }
+
+  }
+
 }
 
 function extractArgs( $pairs, $atts ) {
