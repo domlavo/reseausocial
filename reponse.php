@@ -6,11 +6,11 @@ require_once 'footer.php';
 require_once 'navigation.php';
 
 $utilisateur = verifierConnection();
-if(!$utilisateur || !isset($_GET['utilisateur'])) {
+if(!$utilisateur) {
   header('Location: index.php');
 }
 
-$profile = recupererPersistance()->recupererUtilisateur($_GET['utilisateur']);
+$profile = recupererPersistance()->recupererUtilisateur($utilisateur->loginID);
 if(!$profile) {
   header('Location: index.php');
 }
@@ -24,7 +24,7 @@ echo afficherNavigationPrincipale();
 <div class="content">
   <div class="primary hasSidebar">
     <?= $profile->afficher(); ?>
-    <?= afficherNavigationSecondaire('Journal', $_GET['utilisateur']); ?>
+    <?= afficherNavigationSecondaire('Journal', $utilisateur->loginID); ?>
     <div class="primary-container">
       <?php if( $profile->equals($utilisateur) ) { ?>
         <div class="ajouter-publication-box">

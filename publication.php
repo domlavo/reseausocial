@@ -13,6 +13,7 @@ class Publication implements IAjouter, ISupprimer
   protected $commentaires;
   protected $nbVotes;
   protected $voteUtilisateur;
+  protected $dateCreation;
 
   function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null )
   {
@@ -34,8 +35,22 @@ class Publication implements IAjouter, ISupprimer
     return $this->parent;
   }
 
+  final public function setDateCreation($dateCreation) {
+    $this->dateCreation = $dateCreation;
+    $format = "Y-m-d H:i:s";
+    try {
+      $date = strtotime($dateCreation);
+      $this->dateCreation = "il y a " . elapsedTime($date);
+    } catch (Exception $e) {
+      $this->dateCreation = "";
+    }
+  }
+
   final public function setNbVotes($nbVotes) {
-    $this->nbVotes = $nbVotes;
+    if($nbVotes == '' || $nbVotes == null)
+      $this->nbVotes = 0;
+    else
+      $this->nbVotes = $nbVotes;
   }
 
   final public function setVoteUtilisateur($voteUtilisateur) {
@@ -85,7 +100,7 @@ class Publication implements IAjouter, ISupprimer
       </div>
       <div class="publication-content">
         <div class="publication-header">
-          <p><strong><?= $this->utilisateur->prenom ?></strong> a publié</p>
+          <p><strong><?= $this->utilisateur->prenom ?></strong> a publié <?= $this->dateCreation ?></p>
         </div>
         <div class="publication-texte">
           <p><?= $this->texte ?></p>
@@ -145,7 +160,7 @@ class Commentaire extends Publication {
       </div>
       <div class="publication-content">
         <div class="publication-header">
-          <p><strong><?= $this->utilisateur->prenom ?></strong> a commenté</p>
+          <p><strong><?= $this->utilisateur->prenom ?></strong> a commenté <?= $this->dateCreation ?></p>
         </div>
         <div class="publication-texte">
           <p><?= $this->texte ?></p>
@@ -157,6 +172,42 @@ class Commentaire extends Publication {
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>
         </div>
+      </div>
+    </li>
+    <?php
+    return ob_get_clean();
+  }
+
+}
+
+class Question extends Publication {
+
+  protected $nbReponse;
+
+  public function setNbReponse($nbReponse) {
+    if($nbReponse == '' || $nbReponse == null)
+      $this->nbReponse = 0;
+    else
+      $this->nbReponse = $nbReponse;
+  }
+
+  public function afficher($utilisateur, $fadeOut = false) {
+    $class = $fadeOut ? ' fadeOut' : '';
+    ob_start();
+    ?>
+    <li id="question-block-<?= $this->id ?>" class="question-block<?= $class ?>">
+      <div class="question-titre-bloc">
+        <div class="question-titre"><a href="./reponse.php?question=<?= $this->id ?>"><?= $this->texte ?></a></div>
+        <div class="question-sous-titre"><?= $this->dateCreation ?></div>
+      </div>
+      <div class="question-reponse">
+        <span><?= $this->nbReponse ?></span>
+      </div>
+      <div class="question-user">
+        <div class="publication-avatar">
+          <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+        </div>
+        <p><strong><?= $this->utilisateur->prenom ?></strong></p>
       </div>
     </li>
     <?php

@@ -60,7 +60,7 @@ final class Persistance {
 
   }
 
-  public function recupererPublication($profile, $utilisateur) {
+  public function recupererPublication($profile, $utilisateur, $type) {
 
     if( !is_a($utilisateur, 'Utilisateur') || !is_a($profile, 'Utilisateur') )
       return false;
@@ -88,9 +88,9 @@ final class Persistance {
                     	ON com.pk_publication = comVote.fk_publication
                     LEFT JOIN vote comUserVote
                     	ON com.pk_publication = comUserVote.fk_publication AND comUserVote.fk_utilisateur = ?
-                    WHERE pub.fk_utilisateur = ? AND pub.fk_publication IS NULL
+                    WHERE pub.fk_utilisateur = ? AND pub.fk_publication IS NULL AND pub.fk_type_publication = ?
                     ORDER BY pub.date_creation DESC, com.date_creation ASC;";
-    $valeurs = array( $utilisateur->id, $utilisateur->id, $profile->id );
+    $valeurs = array( $utilisateur->id, $utilisateur->id, $profile->id, $type );
 
     $resultat = array();
     try {
@@ -110,6 +110,7 @@ final class Persistance {
           $user->setId($value['userPubId']);
           $publication = new Publication($value['textePub'], $value['type'], $user, null, $value['specialite']);
           $publication->setId($value['idPub']);
+          $publication->setDateCreation($value['datePub']);
           $publication->setNbVotes($value['votePub']);
           $publication->setVoteUtilisateur($value['votePubUser']);
           $publications[$value['idPub']] = $publication;
@@ -119,15 +120,66 @@ final class Persistance {
           $user->setId($value['userComId']);
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
+          $commentaire->setDateCreation($value['dateCom']);
           if(isset($value['voteCom']))
             $commentaire->setNbVotes($value['voteCom']);
           else
             $commentaire->setNbVotes(0);
-          if(isset($value['voteCom']))
+          if(isset($value['voteComUser']))
             $commentaire->setVoteUtilisateur($value['voteComUser']);
           else
             $commentaire->setVoteUtilisateur(0);
           $publications[$value['idPub']]->ajouterCommentaire($commentaire);
+        }
+      } catch (Exception $e) {}
+
+    }
+
+    return $publications;
+
+  }
+
+  public function recupererQuestion($profile) {
+
+    if( !is_a($profile, 'Utilisateur') )
+      return false;
+
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
+                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', reponse.nbReponse AS 'nbReponse',
+                    		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
+                    		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe'
+                    FROM publication pub
+                    LEFT JOIN utilisateur pubUser
+                    	ON pub.fk_utilisateur = pubUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
+                    	ON pub.pk_publication = pubVote.fk_publication
+                    LEFT JOIN (SELECT fk_publication, COUNT(fk_publication) AS 'nbReponse' FROM publication GROUP BY fk_publication) reponse
+                    	ON pub.pk_publication = reponse.fk_publication
+                    WHERE pub.fk_utilisateur = ? AND pub.fk_publication IS NULL AND pub.fk_type_publication = 2
+                    ORDER BY pub.date_creation DESC;";
+    $valeurs = array( $profile->id );
+
+    $resultat = array();
+    try {
+      $stmt = $this->db->prepare($requete);
+      $stmt->execute($valeurs);
+      $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(Exception $e){
+      return false;
+    }
+
+    $publications = array();
+    foreach ($resultat as $value) {
+
+      try {
+        if( !array_key_exists($value['idPub'], $publications) ) {
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $user->setId($value['userPubId']);
+          $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $publication->setId($value['idPub']);
+          $publication->setDateCreation($value['datePub']);
+          $publication->setNbReponse($value['nbReponse']);
+          $publications[$value['idPub']] = $publication;
         }
       } catch (Exception $e) {}
 

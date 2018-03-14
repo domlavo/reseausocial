@@ -15,7 +15,7 @@ if(!$profile) {
   header('Location: index.php');
 }
 
-$publications = recupererPersistance()->recupererPublication($profile, $utilisateur, 1);
+$publications = recupererPersistance()->recupererQuestion($profile);
 
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
@@ -24,13 +24,13 @@ echo afficherNavigationPrincipale();
 <div class="content">
   <div class="primary hasSidebar">
     <?= $profile->afficher(); ?>
-    <?= afficherNavigationSecondaire('Journal', $_GET['utilisateur']); ?>
+    <?= afficherNavigationSecondaire('Questions', $_GET['utilisateur']); ?>
     <div class="primary-container">
       <?php if( $profile->equals($utilisateur) ) { ?>
         <div class="ajouter-publication-box">
           <form id="ajouter-publication-form">
             <div class="form-group">
-              <label for="textePublication">À quoi pensez-vous, <?= $utilisateur->prenom ?>?</label>
+              <label for="textePublication">Quelle est votre question?</label>
               <textarea class="form-control" id="textePublication" name="textePublication" rows="3"></textarea>
             </div>
             <button id="submitPublication" type="submit" class="btn btn-primary">Publier</button>
@@ -44,7 +44,7 @@ echo afficherNavigationPrincipale();
         $("#ajouter-publication-form").on("submit", function(e) {
           e.preventDefault();
           var datas = $("#ajouter-publication-form").serializeArray();
-          datas.push({ name: "type", value: 1 });
+          datas.push({ name: "type", value: 2 });
           datas.push({ name: "action", value: "ajouterPublication" });
           $.ajax({
             type : "post",
@@ -151,12 +151,17 @@ echo afficherNavigationPrincipale();
       });
       })(jQuery);
       </script>
-      <ul id="publication-container" class="publication-container">
-      <?php
-      foreach ($publications as $publication) {
-        echo $publication->afficher($utilisateur);
-      }
-      ?>
+      <ul id="question-container" class="question-container">
+        <li class="question-header">
+          <div class="question-header-title">Questions</div>
+          <div class="question-header-vote">Réponses</div>
+          <div class="question-header-user">Auteurs</div>
+        </li>
+        <?php
+        foreach ($publications as $publication) {
+          echo $publication->afficher($utilisateur);
+        }
+        ?>
       </ul>
       <?= ajouterModal(
               "modalSupprimerPublication",

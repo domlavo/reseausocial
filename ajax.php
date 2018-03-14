@@ -30,6 +30,7 @@ class Ajax {
       extractArgs(
         array(
         	'textePublication' => '',
+          'type' => '',
         ),
         $params
       )
@@ -43,7 +44,7 @@ class Ajax {
     }
 
     try {
-      $publication = new Publication($textePublication, 1, $utilisateur);
+      $publication = new Publication($textePublication, $type, $utilisateur);
     } catch(Exception $e) {
       echo json_encode($reponse);
       die();
@@ -56,7 +57,7 @@ class Ajax {
       die();
     } else {
       $reponse['status'] = 'success';
-      $reponse['publication'] = htmlspecialchars($newPublication->afficher(true));
+      $reponse['publication'] = htmlspecialchars($newPublication->afficher($utilisateur, true));
       echo json_encode($reponse);
       die();
     }

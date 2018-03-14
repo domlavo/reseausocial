@@ -2,7 +2,7 @@
 
 global $secondaryNav;
 $secondaryNav = array(
-  'Journal' => 'journal.php',
+  'Journal' => 'profile.php',
   'Questions' => 'question.php'
 );
 
@@ -24,7 +24,7 @@ function afficherNavigationPrincipale() {
   return ob_get_clean();
 }
 
-function afficherNavigationSecondaire( $active ) {
+function afficherNavigationSecondaire( $active, $utilisateur ) {
   global $secondaryNav;
   ob_start();
   ?>
@@ -33,7 +33,7 @@ function afficherNavigationSecondaire( $active ) {
       foreach ($secondaryNav as $page => $lien) {
         $class = $active == $page ? ' class="active"' : '';
     ?>
-      <li<?= $class ?>><a href="<?= $lien ?>"><?= $page ?></a></li>
+      <li<?= $class ?>><a href="<?= $lien ?>?utilisateur=<?= $utilisateur ?>"><?= $page ?></a></li>
     <?php } ?>
   </ul>
   <?php

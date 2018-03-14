@@ -13,6 +13,27 @@ function recupererPersistance() {
 	return Persistance::Instance();
 }
 
+function elapsedTime($time)
+{
+    $time = time() - $time;
+    $time = ($time<1)? 1 : $time;
+    $tokens = array (
+        31536000 => 'an',
+        2592000 => 'mois',
+        604800 => 'semaine',
+        86400 => 'jour',
+        3600 => 'heure',
+        60 => 'minute',
+        1 => 'seconde'
+    );
+
+    foreach ($tokens as $unit => $text) {
+        if ($time < $unit) continue;
+        $numberOfUnits = floor($time / $unit);
+        return $numberOfUnits.' '.$text.(($numberOfUnits>1 && $text != 'mois')?'s':'');
+    }
+}
+
 function verifierConnection() {
   if (session_status() == PHP_SESSION_NONE)
       session_start();
