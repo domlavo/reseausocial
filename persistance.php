@@ -189,6 +189,86 @@ final class Persistance {
 
   }
 
+  public function recupererReponse($utilisateur, $question) {
+
+    if( !is_a($utilisateur, 'Utilisateur') )
+      return false;
+
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
+                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser',
+                    		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
+                    		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
+                    		com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
+                    		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
+                    		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
+                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'comPub', comUserVote.valeur AS 'voteComUser'
+                    FROM publication pub
+                    LEFT JOIN utilisateur pubUser
+                    	ON pub.fk_utilisateur = pubUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
+                    	ON pub.pk_publication = pubVote.fk_publication
+                    LEFT JOIN vote pubUserVote
+                    	ON pub.pk_publication = pubUserVote.fk_publication AND pubUserVote.fk_utilisateur = ?
+                    LEFT JOIN publication com
+                    	ON pub.pk_publication = com.fk_publication
+                    LEFT JOIN utilisateur comUser
+                    	ON com.fk_utilisateur = comUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) comVote
+                    	ON com.pk_publication = comVote.fk_publication
+                    LEFT JOIN vote comUserVote
+                    	ON com.pk_publication = comUserVote.fk_publication AND comUserVote.fk_utilisateur = ?
+                    WHERE pub.fk_publication = ? AND pub.fk_type_publication = 3
+                    ORDER BY pub.date_creation DESC, com.date_creation ASC;";
+
+    $valeurs = array( $utilisateur->id, $utilisateur->id, $question );
+
+    $resultat = array();
+    try {
+      $stmt = $this->db->prepare($requete);
+      $stmt->execute($valeurs);
+      $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(Exception $e){
+      return false;
+    }
+
+    $publications = array();
+    foreach ($resultat as $value) {
+
+      try {
+        if( !array_key_exists($value['idPub'], $publications) ) {
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $user->setId($value['userPubId']);
+          $publication = new Publication($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $publication->setId($value['idPub']);
+          $publication->setDateCreation($value['datePub']);
+          $publication->setNbVotes($value['votePub']);
+          $publication->setVoteUtilisateur($value['votePubUser']);
+          $publications[$value['idPub']] = $publication;
+        }
+        if($value['idCom'] != null) {
+          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $value['userComSpe']);
+          $user->setId($value['userComId']);
+          $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
+          $commentaire->setId($value['idCom']);
+          $commentaire->setDateCreation($value['dateCom']);
+          if(isset($value['voteCom']))
+            $commentaire->setNbVotes($value['voteCom']);
+          else
+            $commentaire->setNbVotes(0);
+          if(isset($value['voteComUser']))
+            $commentaire->setVoteUtilisateur($value['voteComUser']);
+          else
+            $commentaire->setVoteUtilisateur(0);
+          $publications[$value['idPub']]->ajouterCommentaire($commentaire);
+        }
+      } catch (Exception $e) {}
+
+    }
+
+    return $publications;
+
+  }
+
   public function ajouterBD($objet) {
 
     if( !is_a($objet, 'IAjouter') )

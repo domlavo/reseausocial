@@ -6,16 +6,20 @@ require_once 'footer.php';
 require_once 'navigation.php';
 
 $utilisateur = verifierConnection();
-if(!$utilisateur) {
+if(!$utilisateur || !isset($_GET['utilisateur'])) {
   header('Location: index.php');
 }
 
-$profile = recupererPersistance()->recupererUtilisateur($utilisateur->loginID);
+$profile = recupererPersistance()->recupererUtilisateur($_GET['utilisateur']);
 if(!$profile) {
   header('Location: index.php');
 }
 
-$publications = recupererPersistance()->recupererPublication($profile, $utilisateur, 1);
+if(!isset($_GET['question']) {
+  header('Location: index.php');
+}
+
+$publications = recupererPersistance()->recupererReponse($utilisateur, $_GET['question']);
 
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
@@ -23,10 +27,10 @@ echo afficherNavigationPrincipale();
 
 <div class="content">
   <div class="primary hasSidebar">
-    <?= $profile->afficher(); ?>
+    <?= $utilisateur->afficher(); ?>
     <?= afficherNavigationSecondaire('Journal', $utilisateur->loginID); ?>
     <div class="primary-container">
-      <?php if( $profile->equals($utilisateur) ) { ?>
+      <?php if( $utilisateur->equals($utilisateur) ) { ?>
         <div class="ajouter-publication-box">
           <form id="ajouter-publication-form">
             <div class="form-group">
