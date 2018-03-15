@@ -222,7 +222,7 @@ final class Persistance {
     if(empty($resultat)) {
       return false;
     }
-    
+
     $value = $resultat[0];
 
     $publication = false;
@@ -377,7 +377,21 @@ final class Persistance {
         return false;
       }
     }
-    return true;
+
+    $resultat = array();
+    try {
+      $stmt = $this->db->prepare("SELECT fk_publication, SUM(valeur) AS 'nbVote' FROM vote WHERE fk_publication = ? GROUP BY fk_publication;");
+      $stmt->execute(array($pubId));
+      $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(Exception $e){
+      return false;
+    }
+
+    if(empty($resultat)) {
+      return false;
+    }
+
+    return $resultat[0]['nbVote'];
 
   }
 

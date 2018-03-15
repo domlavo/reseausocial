@@ -178,9 +178,10 @@ class Ajax {
 
     $retourVote = recupererPersistance()->votePublication($pubid, $utilisateur->id, $vote);
 
-    if( $retourVote ) {
+    if( $retourVote !== false ) {
       $reponse = array('status' => 'success');
       $reponse['vote'] = $vote;
+      $reponse['nbVote'] = $retourVote;
       echo json_encode($reponse);
       die();
     }

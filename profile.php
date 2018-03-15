@@ -144,6 +144,7 @@ echo afficherNavigationPrincipale();
               $(container).find(".vote.active").removeClass("active");
               if(jsonResponse.vote != 0)
                 $(icon).addClass("active");
+              $(container).find(".badge").text(jsonResponse.nbVote);
             }
           });
         });

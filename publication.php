@@ -51,6 +51,12 @@ class Publication implements IAjouter, ISupprimer
       $this->nbVotes = $nbVotes;
   }
 
+  public function getNbVotes() {
+    if($this->nbVotes > 0)
+      return "+" . $this->nbVotes;
+    return $this->nbVotes;
+  }
+
   final public function setVoteUtilisateur($voteUtilisateur) {
     $this->voteUtilisateur = $voteUtilisateur;
   }
@@ -107,6 +113,7 @@ class Publication implements IAjouter, ISupprimer
           <a href="#" class="fa fa-reply"></a>
           <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
           <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
+          <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
           <?php if($this->utilisateur->equals($utilisateur)) : ?>
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>
@@ -166,6 +173,7 @@ class Commentaire extends Publication {
         <div class="publication-actions" data-pubid=<?= $this->id ?>>
           <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
           <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
+          <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
           <?php if($this->utilisateur->equals($utilisateur)) : ?>
           <a href="#" class="fa fa-trash"></a>
           <?php endif; ?>

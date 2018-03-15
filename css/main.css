@@ -344,6 +344,13 @@ p {
 
 .publication-actions {
     margin-top: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.badge-primary {
+    margin-right: 10px;
+      background-color: #4dcadd;
 }
 
 ul.publication-commentaires {

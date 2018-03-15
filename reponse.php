@@ -35,7 +35,7 @@ echo afficherNavigationPrincipale();
         <div class="ajouter-publication-box">
           <form id="ajouter-publication-form">
             <div class="form-group">
-              <label for="textePublication">À quoi pensez-vous, <?= $utilisateur->prenom ?>?</label>
+              <label for="textePublication">Votre réponse</label>
               <textarea class="form-control" id="textePublication" name="textePublication" rows="3"></textarea>
             </div>
             <button id="submitPublication" type="submit" class="btn btn-primary">Publier</button>
