@@ -181,6 +181,8 @@ class Ajax {
     if( $retourVote !== false ) {
       $reponse = array('status' => 'success');
       $reponse['vote'] = $vote;
+      if($retourVote > 0)
+        $retourVote = "+" . $retourVote;
       $reponse['nbVote'] = $retourVote;
       echo json_encode($reponse);
       die();
