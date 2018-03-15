@@ -4,7 +4,7 @@ require_once 'helper.php';
 
 class Publication implements IAjouter, ISupprimer
 {
-  protected $id;
+  public $id;
   protected $texte;
   protected $type;
   protected $utilisateur;

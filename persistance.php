@@ -2,6 +2,7 @@
 
 require_once 'utilisateur.php';
 require_once 'publication.php';
+require_once 'helper.php';
 
 final class Persistance {
 
@@ -139,7 +140,7 @@ final class Persistance {
 
   }
 
-  public function recupererQuestion($profile) {
+  public function recupererQuestions($profile) {
 
     if( !is_a($profile, 'Utilisateur') )
       return false;
@@ -186,6 +187,55 @@ final class Persistance {
     }
 
     return $publications;
+
+  }
+
+  public function recupererQuestion($question) {
+
+    if( !isInt($question) )
+      return false;
+
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
+                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', reponse.nbReponse AS 'nbReponse',
+                    		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
+                    		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe'
+                    FROM publication pub
+                    LEFT JOIN utilisateur pubUser
+                    	ON pub.fk_utilisateur = pubUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
+                    	ON pub.pk_publication = pubVote.fk_publication
+                    LEFT JOIN (SELECT fk_publication, COUNT(fk_publication) AS 'nbReponse' FROM publication GROUP BY fk_publication) reponse
+                    	ON pub.pk_publication = reponse.fk_publication
+                    WHERE pub.pk_publication = ? AND pub.fk_publication IS NULL AND pub.fk_type_publication = 2
+                    ORDER BY pub.date_creation DESC;";
+    $valeurs = array( $question );
+
+    $resultat = array();
+    try {
+      $stmt = $this->db->prepare($requete);
+      $stmt->execute($valeurs);
+      $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(Exception $e){
+      return false;
+    }
+
+    if(empty($resultat)) {
+      return false;
+    }
+    
+    $value = $resultat[0];
+
+    $publication = false;
+    try {
+      $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+      $user->setId($value['userPubId']);
+      $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
+      $publication->setId($value['idPub']);
+      $publication->setDateCreation($value['datePub']);
+      $publication->setNbReponse($value['nbReponse']);
+    } catch (Exception $e) {}
+
+    return $publication;
 
   }
 

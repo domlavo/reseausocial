@@ -4,22 +4,23 @@ session_start();
 require_once 'header.php';
 require_once 'footer.php';
 require_once 'navigation.php';
+require_once 'helper.php';
 
 $utilisateur = verifierConnection();
-if(!$utilisateur || !isset($_GET['utilisateur'])) {
+if(!$utilisateur) {
   header('Location: index.php');
 }
 
-$profile = recupererPersistance()->recupererUtilisateur($_GET['utilisateur']);
-if(!$profile) {
+if(!isset($_GET['question'])) {
   header('Location: index.php');
 }
 
-if(!isset($_GET['question']) {
+$question = recupererPersistance()->recupererQuestion($_GET['question']);
+if(!$question) {
   header('Location: index.php');
 }
 
-$publications = recupererPersistance()->recupererReponse($utilisateur, $_GET['question']);
+$publications = recupererPersistance()->recupererReponse($utilisateur, $question->id);
 
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
@@ -28,7 +29,7 @@ echo afficherNavigationPrincipale();
 <div class="content">
   <div class="primary hasSidebar">
     <?= $utilisateur->afficher(); ?>
-    <?= afficherNavigationSecondaire('Journal', $utilisateur->loginID); ?>
+    <?= afficherNavigationSecondaire('', $utilisateur->loginID); ?>
     <div class="primary-container">
       <?php if( $utilisateur->equals($utilisateur) ) { ?>
         <div class="ajouter-publication-box">
@@ -48,7 +49,8 @@ echo afficherNavigationPrincipale();
         $("#ajouter-publication-form").on("submit", function(e) {
           e.preventDefault();
           var datas = $("#ajouter-publication-form").serializeArray();
-          datas.push({ name: "type", value: 1 });
+          datas.push({ name: "type", value: 3 });
+          datas.push({ name: "question", value: <?= $question->id ?> });
           datas.push({ name: "action", value: "ajouterPublication" });
           $.ajax({
             type : "post",

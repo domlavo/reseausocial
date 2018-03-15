@@ -15,7 +15,7 @@ if(!$profile) {
   header('Location: index.php');
 }
 
-$publications = recupererPersistance()->recupererQuestion($profile);
+$publications = recupererPersistance()->recupererQuestions($profile);
 
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
