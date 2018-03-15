@@ -36,8 +36,6 @@ class Publication implements IAjouter, ISupprimer
   }
 
   final public function setDateCreation($dateCreation) {
-    $this->dateCreation = $dateCreation;
-    $format = "Y-m-d H:i:s";
     try {
       $date = strtotime($dateCreation);
       $this->dateCreation = "il y a " . elapsedTime($date);

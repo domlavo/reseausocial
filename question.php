@@ -55,9 +55,9 @@ echo afficherNavigationPrincipale();
             if(jsonResponse.status == "success") {
               $("#textePublication").val("");
               var output = $("<div />").html(jsonResponse.publication).text();
-              $("#publication-container").prepend(output);
+              $(output).insertAfter("#question-container .question-header");
               setTimeout(function(){
-                $("#publication-container").find(".fadeOut").removeClass("fadeOut");
+                $("#question-container").find(".fadeOut").removeClass("fadeOut");
               }, 100);
             }
           });

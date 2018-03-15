@@ -44,7 +44,13 @@ class Ajax {
     }
 
     try {
-      $publication = new Publication($textePublication, $type, $utilisateur);
+      if($type == 1)
+        $publication = new Publication($textePublication, $type, $utilisateur);
+      if($type == 2) {
+        $publication = new Question($textePublication, $type, $utilisateur);
+        $publication->setNbReponse(0);
+        $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
+      }
     } catch(Exception $e) {
       echo json_encode($reponse);
       die();
