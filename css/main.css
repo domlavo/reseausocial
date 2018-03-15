@@ -296,6 +296,9 @@ li.publication-block.fadeOut {
 
 .publication-avatar {
     width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .publication-content {
@@ -310,6 +313,26 @@ p {
     line-height: 1.5;
     font-size: 14px;
     color: #737373;
+}
+
+a.fa.fa-check {
+    color: rgba(0,0,0,.2);
+    font-size: 26px;
+    text-decoration: none !important;
+    outline: 0!important;
+    -webkit-transition: all .15s ease-in-out;
+    -moz-transition: all .15s ease-in-out;
+    -o-transition: all .15s ease-in-out;
+    transition: all .15s ease-in-out;
+    margin-top: 10px;
+}
+
+a.fa.fa-check.active {
+  color: #4dcadd;
+}
+
+a.fa.fa-check:hover:before {
+    color: rgba(0,0,0,.42);
 }
 
 .publication-texte p {

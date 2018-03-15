@@ -31,6 +31,7 @@ class Ajax {
         array(
         	'textePublication' => '',
           'type' => '',
+          'question' => ''
         ),
         $params
       )
@@ -50,6 +51,9 @@ class Ajax {
         $publication = new Question($textePublication, $type, $utilisateur);
         $publication->setNbReponse(0);
         $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
+      }
+      if($type == 3) {
+        $publication = new Reponse($textePublication, $type, $utilisateur, $question);
       }
     } catch(Exception $e) {
       echo json_encode($reponse);
@@ -187,6 +191,47 @@ class Ajax {
       echo json_encode($reponse);
       die();
     }
+    echo json_encode($reponse);
+    die();
+
+  }
+
+  public static function selectionnerReponse(array $params = array()) {
+    extract(
+      extractArgs(
+        array(
+          'pubid' => '',
+          'repid' => '',
+        ),
+        $params
+      )
+    );
+
+    $reponse = array('status' => 'error');
+    $utilisateur = verifierConnection();
+    if(!$utilisateur) {
+      echo json_encode($reponse);
+      die();
+    }
+
+    $question = recupererPersistance()->recupererQuestion($pubid);
+    if( !$question ) {
+      echo json_encode($reponse);
+      die();
+    }
+
+    if( !$utilisateur->equals($question->utilisateur) ) {
+      echo json_encode($reponse);
+      die();
+    }
+
+    if( recupererPersistance()->selectionnerReponse($pubid, $repid) ) {
+      $reponse = array('status' => 'success');
+      $reponse['reponse'] = $repid;
+      echo json_encode($reponse);
+      die();
+    }
+
     echo json_encode($reponse);
     die();
 

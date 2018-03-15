@@ -7,7 +7,7 @@ class Publication implements IAjouter, ISupprimer
   public $id;
   protected $texte;
   protected $type;
-  protected $utilisateur;
+  public $utilisateur;
   protected $parent;
   protected $specialite;
   protected $commentaires;
@@ -214,6 +214,62 @@ class Question extends Publication {
           <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
         </div>
         <p><strong><?= $this->utilisateur->prenom ?></strong></p>
+      </div>
+    </li>
+    <?php
+    return ob_get_clean();
+  }
+
+}
+
+class Reponse extends Publication {
+
+  public $estReponse;
+
+  public function afficher($utilisateur, $fadeOut = false) {
+    $class = $fadeOut ? ' fadeOut' : '';
+    $checkReponse = $this->estReponse ? ' active' : '';
+    ob_start();
+    ?>
+    <li id="publication-block-<?= $this->id ?>" class="publication-block<?= $class ?>">
+      <div class="publication-avatar">
+        <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+        <a href="#" class="fa fa-check<?= $checkReponse ?>" data-pubid=<?= $this->id ?>></a>
+      </div>
+      <div class="publication-content">
+        <div class="publication-header">
+          <p><strong><?= $this->utilisateur->prenom ?></strong> a publié <?= $this->dateCreation ?></p>
+        </div>
+        <div class="publication-texte">
+          <p><?= $this->texte ?></p>
+        </div>
+        <div class="publication-actions" data-pubid=<?= $this->id ?>>
+          <a href="#" class="fa fa-reply"></a>
+          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
+          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
+          <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
+          <?php if($this->utilisateur->equals($utilisateur)) : ?>
+          <a href="#" class="fa fa-trash"></a>
+          <?php endif; ?>
+        </div>
+        <ul class="publication-commentaires">
+          <?php
+          foreach ($this->commentaires as $commentaire) {
+            echo $commentaire->afficher($utilisateur);
+          }
+          ?>
+        </ul>
+        <div class="publication-commenter slideDown">
+          <form class="ajouter-commentaire-form">
+            <div class="form-group">
+              <textarea class="form-control texteCommentaire" name="texteCommentaire" rows="3"></textarea>
+            </div>
+            <input type="hidden" name="publication" value="<?= $this->id ?>">
+            <button type="submit" class="btn btn-primary submitCommentaire">Commenter</button>
+            <button type="button" class="btn btn-light commentaireAnnuler">Annuler</button>
+            <div class="clearfix"></div>
+          </form>
+        </div>
       </div>
     </li>
     <?php

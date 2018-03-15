@@ -244,7 +244,7 @@ final class Persistance {
     if( !is_a($utilisateur, 'Utilisateur') )
       return false;
 
-    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
                     		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser',
                     		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
                     		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
@@ -288,11 +288,15 @@ final class Persistance {
         if( !array_key_exists($value['idPub'], $publications) ) {
           $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
           $user->setId($value['userPubId']);
-          $publication = new Publication($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $publication = new Reponse($value['textePub'], $value['type'], $user, null, $value['specialite']);
           $publication->setId($value['idPub']);
           $publication->setDateCreation($value['datePub']);
           $publication->setNbVotes($value['votePub']);
           $publication->setVoteUtilisateur($value['votePubUser']);
+          if($value['reponse'] == $value['idPub'])
+            $publication->estReponse = true;
+          else
+            $publication->estReponse = false;
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {
@@ -392,6 +396,19 @@ final class Persistance {
     }
 
     return $resultat[0]['nbVote'];
+
+  }
+
+  public function selectionnerReponse($pubId, $repId) {
+
+    try {
+      $stmt = $this->db->prepare("UPDATE publication SET fk_reponse = ? WHERE pk_publication = ?;");
+      $stmt->execute(array($repId, $pubId));
+    } catch(Exception $e){
+      return false;
+    }
+
+    return true;
 
   }
 

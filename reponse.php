@@ -154,6 +154,25 @@ echo afficherNavigationPrincipale();
           });
         });
 
+        $(".content").delegate(".fa-check", "click", function(e) {
+          e.preventDefault();
+          var repid = $(this).data("pubid");
+          var datas = [{ name: "pubid", value: <?= $question->id ?> },
+                      { name: "repid", value: repid },
+                      { name: "action", value: "selectionnerReponse" }];
+          var icon = $(this);
+          $.ajax({
+            type : "post",
+            url : "ajax.php",
+            data : datas,
+          }).done(function (response) {
+            var jsonResponse = JSON.parse(response);
+            if(jsonResponse.status == "success") {
+              $(icon).addClass("active");
+            }
+          });
+        });
+
       });
       })(jQuery);
       </script>
