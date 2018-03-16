@@ -17,7 +17,7 @@ class Publication implements IAjouter, ISupprimer
 
   function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null )
   {
-    if($texte != sanitizeInput($texte))
+    if($texte != sanitizeInput($texte) || $texte == "")
       throw new Exception("Le texte n'est pas conforme");
     $this->texte = $texte;
     $this->type = $type;
@@ -25,6 +25,7 @@ class Publication implements IAjouter, ISupprimer
     $this->parent = $parent;
     $this->specialite = $specialite;
     $this->commentaires = array();
+    $this->nbVotes = 0;
   }
 
   final public function setId($id) {
@@ -189,6 +190,7 @@ class Commentaire extends Publication {
 class Question extends Publication {
 
   protected $nbReponse;
+  public $aReponse;
 
   public function setNbReponse($nbReponse) {
     if($nbReponse == '' || $nbReponse == null)
@@ -199,6 +201,7 @@ class Question extends Publication {
 
   public function afficher($utilisateur, $fadeOut = false) {
     $class = $fadeOut ? ' fadeOut' : '';
+    $aReponse = $this->aReponse ? ' class="active"' : '';
     ob_start();
     ?>
     <li id="question-block-<?= $this->id ?>" class="question-block<?= $class ?>">
@@ -207,7 +210,7 @@ class Question extends Publication {
         <div class="question-sous-titre"><?= $this->dateCreation ?></div>
       </div>
       <div class="question-reponse">
-        <span><?= $this->nbReponse ?></span>
+        <span<?= $aReponse ?>><?= $this->nbReponse ?></span>
       </div>
       <div class="question-user">
         <div class="publication-avatar">
@@ -225,6 +228,7 @@ class Question extends Publication {
 class Reponse extends Publication {
 
   public $estReponse;
+  public $utilisateurQuestion;
 
   public function afficher($utilisateur, $fadeOut = false) {
     $class = $fadeOut ? ' fadeOut' : '';
@@ -234,7 +238,9 @@ class Reponse extends Publication {
     <li id="publication-block-<?= $this->id ?>" class="publication-block<?= $class ?>">
       <div class="publication-avatar">
         <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+        <?php if($this->utilisateurQuestion->equals($utilisateur) || $this->estReponse) : ?>
         <a href="#" class="fa fa-check<?= $checkReponse ?>" data-pubid=<?= $this->id ?>></a>
+        <?php endif; ?>
       </div>
       <div class="publication-content">
         <div class="publication-header">

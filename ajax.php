@@ -50,11 +50,17 @@ class Ajax {
       if($type == 2) {
         $publication = new Question($textePublication, $type, $utilisateur);
         $publication->setNbReponse(0);
-        $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
       }
       if($type == 3) {
-        $publication = new Reponse($textePublication, $type, $utilisateur, $question);
+        $question = recupererPersistance()->recupererQuestion($question);
+        if( !$question ) {
+          echo json_encode($reponse);
+          die();
+        }
+        $publication = new Reponse($textePublication, $type, $utilisateur, $question->id);
+        $publication->utilisateurQuestion = $question->utilisateur;
       }
+      $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
     } catch(Exception $e) {
       echo json_encode($reponse);
       die();
@@ -62,12 +68,12 @@ class Ajax {
 
     $newPublication = recupererPersistance()->ajouterBD($publication);
     if(!is_a($newPublication, 'Publication')) {
-      $reponse['status'] = $newPublication;
       echo json_encode($reponse);
       die();
     } else {
       $reponse['status'] = 'success';
       $reponse['publication'] = htmlspecialchars($newPublication->afficher($utilisateur, true));
+      $reponse['type'] = $type;
       echo json_encode($reponse);
       die();
     }
@@ -93,6 +99,7 @@ class Ajax {
 
     try {
       $publication = new Commentaire($texteCommentaire, 1, $utilisateur, $publication);
+      $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
     } catch(Exception $e) {
       echo json_encode($reponse);
       die();
@@ -130,7 +137,7 @@ class Ajax {
 
     $publication = null;
     try {
-      $publication = new Publication("", 1, $utilisateur);
+      $publication = new Publication("nil", 1, $utilisateur);
       $publication->setId($idSupprimerPublication);
     } catch(Exception $e) {
       echo json_encode($reponse);
@@ -202,6 +209,7 @@ class Ajax {
         array(
           'pubid' => '',
           'repid' => '',
+          'isActive' => ''
         ),
         $params
       )
@@ -225,7 +233,9 @@ class Ajax {
       die();
     }
 
-    if( recupererPersistance()->selectionnerReponse($pubid, $repid) ) {
+    $isActive = $isActive === 'true';
+
+    if( recupererPersistance()->selectionnerReponse($pubid, $repid, $isActive) ) {
       $reponse = array('status' => 'success');
       $reponse['reponse'] = $repid;
       echo json_encode($reponse);

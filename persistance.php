@@ -145,7 +145,7 @@ final class Persistance {
     if( !is_a($profile, 'Utilisateur') )
       return false;
 
-    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
                     		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', reponse.nbReponse AS 'nbReponse',
                     		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
                     		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe'
@@ -180,6 +180,7 @@ final class Persistance {
           $publication->setId($value['idPub']);
           $publication->setDateCreation($value['datePub']);
           $publication->setNbReponse($value['nbReponse']);
+          $publication->aReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
           $publications[$value['idPub']] = $publication;
         }
       } catch (Exception $e) {}
@@ -195,7 +196,7 @@ final class Persistance {
     if( !isInt($question) )
       return false;
 
-    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
                     		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', reponse.nbReponse AS 'nbReponse',
                     		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
                     		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe'
@@ -230,6 +231,7 @@ final class Persistance {
       $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
       $user->setId($value['userPubId']);
       $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
+      $publication->aReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
       $publication->setId($value['idPub']);
       $publication->setDateCreation($value['datePub']);
       $publication->setNbReponse($value['nbReponse']);
@@ -244,14 +246,15 @@ final class Persistance {
     if( !is_a($utilisateur, 'Utilisateur') )
       return false;
 
-    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
+    $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
                     		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser',
                     		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
                     		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
                     		com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
                     		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
                     		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
-                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'comPub', comUserVote.valeur AS 'voteComUser'
+                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'comPub', comUserVote.valeur AS 'voteComUser',
+                        (SELECT fk_reponse FROM publication WHERE pk_publication = ?) AS 'reponse'
                     FROM publication pub
                     LEFT JOIN utilisateur pubUser
                     	ON pub.fk_utilisateur = pubUser.pk_utilisateur
@@ -270,7 +273,7 @@ final class Persistance {
                     WHERE pub.fk_publication = ? AND pub.fk_type_publication = 3
                     ORDER BY pub.date_creation DESC, com.date_creation ASC;";
 
-    $valeurs = array( $utilisateur->id, $utilisateur->id, $question );
+    $valeurs = array( $question->id, $utilisateur->id, $utilisateur->id, $question->id );
 
     $resultat = array();
     try {
@@ -297,6 +300,7 @@ final class Persistance {
             $publication->estReponse = true;
           else
             $publication->estReponse = false;
+          $publication->utilisateurQuestion = $question->utilisateur;
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {
@@ -399,8 +403,10 @@ final class Persistance {
 
   }
 
-  public function selectionnerReponse($pubId, $repId) {
+  public function selectionnerReponse($pubId, $repId, $isActive) {
 
+    if($isActive)
+      $repId = NULL;
     try {
       $stmt = $this->db->prepare("UPDATE publication SET fk_reponse = ? WHERE pk_publication = ?;");
       $stmt->execute(array($repId, $pubId));

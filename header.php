@@ -20,6 +20,7 @@ function renderHeader( $hasNav = false ) {
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 		<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+		<script type="text/javascript" src="./js/script.js"></script>
 		<meta name="google-signin-scope" content="profile email">
 		<meta name="google-signin-client_id" content="924453145091-v7ivhe8s60llqd9e89f74cfti5o2es1i.apps.googleusercontent.com">
 		<link rel="stylesheet" href="./css/main.css">
