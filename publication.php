@@ -26,6 +26,8 @@ class Publication implements IAjouter, ISupprimer
     $this->specialite = $specialite;
     $this->commentaires = array();
     $this->nbVotes = 0;
+    $this->voteUtilisateur = 0;
+    $this->dateCreation = "";
   }
 
   final public function setId($id) {
@@ -59,7 +61,10 @@ class Publication implements IAjouter, ISupprimer
   }
 
   final public function setVoteUtilisateur($voteUtilisateur) {
-    $this->voteUtilisateur = $voteUtilisateur;
+    if($voteUtilisateur == '' || $voteUtilisateur == null)
+      $this->voteUtilisateur = 0;
+    else
+      $this->voteUtilisateur = $voteUtilisateur;
   }
 
   public function ajouterCommentaire($commentaire) {
@@ -100,25 +105,11 @@ class Publication implements IAjouter, ISupprimer
     ob_start();
     ?>
     <li id="publication-block-<?= $this->id ?>" class="publication-block<?= $class ?>">
-      <div class="publication-avatar">
-        <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
-      </div>
+      <?= $this->afficherAvatar($utilisateur); ?>
       <div class="publication-content">
-        <div class="publication-header">
-          <p><strong><?= $this->utilisateur->prenom ?></strong> a publié <?= $this->dateCreation ?></p>
-        </div>
-        <div class="publication-texte">
-          <p><?= $this->texte ?></p>
-        </div>
-        <div class="publication-actions" data-pubid=<?= $this->id ?>>
-          <a href="#" class="fa fa-reply"></a>
-          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
-          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
-          <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
-          <?php if($this->utilisateur->equals($utilisateur)) : ?>
-          <a href="#" class="fa fa-trash"></a>
-          <?php endif; ?>
-        </div>
+        <?= $this->afficherTitre(); ?>
+        <?= $this->afficherContenu(); ?>
+        <?= $this->afficherActions($utilisateur); ?>
         <ul class="publication-commentaires">
           <?php
           foreach ($this->commentaires as $commentaire) {
@@ -126,19 +117,75 @@ class Publication implements IAjouter, ISupprimer
           }
           ?>
         </ul>
-        <div class="publication-commenter slideDown">
-          <form class="ajouter-commentaire-form">
-            <div class="form-group">
-              <textarea class="form-control texteCommentaire" name="texteCommentaire" rows="3"></textarea>
-            </div>
-            <input type="hidden" name="publication" value="<?= $this->id ?>">
-            <button type="submit" class="btn btn-primary submitCommentaire">Commenter</button>
-            <button type="button" class="btn btn-light commentaireAnnuler">Annuler</button>
-            <div class="clearfix"></div>
-          </form>
-        </div>
+        <?= $this->afficherFormulaireCommenter(); ?>
       </div>
     </li>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherAvatar($utilisateur) {
+    ob_start();
+    ?>
+    <div class="publication-avatar">
+      <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherTitre() {
+    ob_start();
+    ?>
+    <div class="publication-header">
+      <p><strong><?= $this->utilisateur->prenom ?></strong> a publié <?= $this->dateCreation ?></p>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherContenu() {
+    ob_start();
+    ?>
+    <div class="publication-texte">
+      <p><?= $this->texte ?></p>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherActions($utilisateur, $avecReply = true) {
+    ob_start();
+    ?>
+    <div class="publication-actions" data-pubid=<?= $this->id ?>>
+      <?php if($avecReply) : ?>
+        <a href="#" class="fa fa-reply"></a>
+      <?php endif; ?>
+      <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
+      <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
+      <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
+      <?php if($this->utilisateur->equals($utilisateur)) : ?>
+        <a href="#" class="fa fa-trash"></a>
+      <?php endif; ?>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherFormulaireCommenter() {
+    ob_start();
+    ?>
+    <div class="publication-commenter slideDown">
+      <form class="ajouter-commentaire-form">
+        <div class="form-group">
+          <textarea class="form-control texteCommentaire" name="texteCommentaire" rows="3"></textarea>
+        </div>
+        <input type="hidden" name="publication" value="<?= $this->id ?>">
+        <button type="submit" class="btn btn-primary submitCommentaire">Commenter</button>
+        <button type="button" class="btn btn-light commentaireAnnuler">Annuler</button>
+        <div class="clearfix"></div>
+      </form>
+    </div>
     <?php
     return ob_get_clean();
   }
@@ -161,24 +208,11 @@ class Commentaire extends Publication {
     ob_start();
     ?>
     <li id="publication-block-<?= $this->id ?>" class="publication-block<?= $class ?>">
-      <div class="publication-avatar">
-        <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
-      </div>
+      <?= $this->afficherAvatar($utilisateur); ?>
       <div class="publication-content">
-        <div class="publication-header">
-          <p><strong><?= $this->utilisateur->prenom ?></strong> a commenté <?= $this->dateCreation ?></p>
-        </div>
-        <div class="publication-texte">
-          <p><?= $this->texte ?></p>
-        </div>
-        <div class="publication-actions" data-pubid=<?= $this->id ?>>
-          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
-          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
-          <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
-          <?php if($this->utilisateur->equals($utilisateur)) : ?>
-          <a href="#" class="fa fa-trash"></a>
-          <?php endif; ?>
-        </div>
+        <?= $this->afficherTitre(); ?>
+        <?= $this->afficherContenu(); ?>
+        <?= $this->afficherActions($utilisateur, false); ?>
       </div>
     </li>
     <?php
@@ -190,7 +224,13 @@ class Commentaire extends Publication {
 class Question extends Publication {
 
   protected $nbReponse;
-  public $aReponse;
+  public $aBonneReponse;
+
+  public function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null ) {
+    parent::__construct( $texte, $type, $utilisateur, $parent, $specialite );
+    $this->nbReponse = 0;
+    $this->aBonneReponse = false;
+  }
 
   public function setNbReponse($nbReponse) {
     if($nbReponse == '' || $nbReponse == null)
@@ -201,7 +241,7 @@ class Question extends Publication {
 
   public function afficher($utilisateur, $fadeOut = false) {
     $class = $fadeOut ? ' fadeOut' : '';
-    $aReponse = $this->aReponse ? ' class="active"' : '';
+    $aBonneReponse = $this->aBonneReponse ? ' class="active"' : '';
     ob_start();
     ?>
     <li id="question-block-<?= $this->id ?>" class="question-block<?= $class ?>">
@@ -210,12 +250,10 @@ class Question extends Publication {
         <div class="question-sous-titre"><?= $this->dateCreation ?></div>
       </div>
       <div class="question-reponse">
-        <span<?= $aReponse ?>><?= $this->nbReponse ?></span>
+        <span<?= $aBonneReponse ?>><?= $this->nbReponse ?></span>
       </div>
       <div class="question-user">
-        <div class="publication-avatar">
-          <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
-        </div>
+        <?= $this->afficherAvatar($utilisateur); ?>
         <p><strong><?= $this->utilisateur->prenom ?></strong></p>
       </div>
     </li>
@@ -230,54 +268,22 @@ class Reponse extends Publication {
   public $estReponse;
   public $utilisateurQuestion;
 
-  public function afficher($utilisateur, $fadeOut = false) {
-    $class = $fadeOut ? ' fadeOut' : '';
+  public function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null ) {
+    parent::__construct( $texte, $type, $utilisateur, $parent, $specialite );
+    $this->estReponse = false;
+    $this->utilisateurQuestion = null;
+  }
+
+  protected function afficherAvatar($utilisateur) {
     $checkReponse = $this->estReponse ? ' active' : '';
     ob_start();
     ?>
-    <li id="publication-block-<?= $this->id ?>" class="publication-block<?= $class ?>">
-      <div class="publication-avatar">
-        <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
-        <?php if($this->utilisateurQuestion->equals($utilisateur) || $this->estReponse) : ?>
-        <a href="#" class="fa fa-check<?= $checkReponse ?>" data-pubid=<?= $this->id ?>></a>
-        <?php endif; ?>
-      </div>
-      <div class="publication-content">
-        <div class="publication-header">
-          <p><strong><?= $this->utilisateur->prenom ?></strong> a publié <?= $this->dateCreation ?></p>
-        </div>
-        <div class="publication-texte">
-          <p><?= $this->texte ?></p>
-        </div>
-        <div class="publication-actions" data-pubid=<?= $this->id ?>>
-          <a href="#" class="fa fa-reply"></a>
-          <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
-          <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
-          <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
-          <?php if($this->utilisateur->equals($utilisateur)) : ?>
-          <a href="#" class="fa fa-trash"></a>
-          <?php endif; ?>
-        </div>
-        <ul class="publication-commentaires">
-          <?php
-          foreach ($this->commentaires as $commentaire) {
-            echo $commentaire->afficher($utilisateur);
-          }
-          ?>
-        </ul>
-        <div class="publication-commenter slideDown">
-          <form class="ajouter-commentaire-form">
-            <div class="form-group">
-              <textarea class="form-control texteCommentaire" name="texteCommentaire" rows="3"></textarea>
-            </div>
-            <input type="hidden" name="publication" value="<?= $this->id ?>">
-            <button type="submit" class="btn btn-primary submitCommentaire">Commenter</button>
-            <button type="button" class="btn btn-light commentaireAnnuler">Annuler</button>
-            <div class="clearfix"></div>
-          </form>
-        </div>
-      </div>
-    </li>
+    <div class="publication-avatar">
+      <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+      <?php if($this->utilisateurQuestion->equals($utilisateur) || $this->estReponse) : ?>
+      <a href="#" class="fa fa-check<?= $checkReponse ?>" data-pubid=<?= $this->id ?>></a>
+      <?php endif; ?>
+    </div>
     <?php
     return ob_get_clean();
   }

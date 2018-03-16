@@ -73,7 +73,7 @@ final class Persistance {
                     		com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
                     		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
                     		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
-                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'comPub', comUserVote.valeur AS 'voteComUser'
+                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'voteCom', comUserVote.valeur AS 'voteComUser'
                     FROM publication pub
                     LEFT JOIN utilisateur pubUser
                     	ON pub.fk_utilisateur = pubUser.pk_utilisateur
@@ -122,14 +122,8 @@ final class Persistance {
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
           $commentaire->setDateCreation($value['dateCom']);
-          if(isset($value['voteCom']))
-            $commentaire->setNbVotes($value['voteCom']);
-          else
-            $commentaire->setNbVotes(0);
-          if(isset($value['voteComUser']))
-            $commentaire->setVoteUtilisateur($value['voteComUser']);
-          else
-            $commentaire->setVoteUtilisateur(0);
+          $commentaire->setNbVotes($value['voteCom']);
+          $commentaire->setVoteUtilisateur($value['voteComUser']);
           $publications[$value['idPub']]->ajouterCommentaire($commentaire);
         }
       } catch (Exception $e) {}
@@ -180,7 +174,7 @@ final class Persistance {
           $publication->setId($value['idPub']);
           $publication->setDateCreation($value['datePub']);
           $publication->setNbReponse($value['nbReponse']);
-          $publication->aReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
+          $publication->aBonneReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
           $publications[$value['idPub']] = $publication;
         }
       } catch (Exception $e) {}
@@ -231,7 +225,7 @@ final class Persistance {
       $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
       $user->setId($value['userPubId']);
       $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
-      $publication->aReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
+      $publication->aBonneReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
       $publication->setId($value['idPub']);
       $publication->setDateCreation($value['datePub']);
       $publication->setNbReponse($value['nbReponse']);
@@ -243,7 +237,7 @@ final class Persistance {
 
   public function recupererReponse($utilisateur, $question) {
 
-    if( !is_a($utilisateur, 'Utilisateur') )
+    if( !is_a($utilisateur, 'Utilisateur') || !is_a($question, 'Question') )
       return false;
 
     $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type',
@@ -253,7 +247,7 @@ final class Persistance {
                     		com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
                     		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
                     		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
-                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'comPub', comUserVote.valeur AS 'voteComUser',
+                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'voteCom', comUserVote.valeur AS 'voteComUser',
                         (SELECT fk_reponse FROM publication WHERE pk_publication = ?) AS 'reponse'
                     FROM publication pub
                     LEFT JOIN utilisateur pubUser
@@ -298,8 +292,6 @@ final class Persistance {
           $publication->setVoteUtilisateur($value['votePubUser']);
           if($value['reponse'] == $value['idPub'])
             $publication->estReponse = true;
-          else
-            $publication->estReponse = false;
           $publication->utilisateurQuestion = $question->utilisateur;
           $publications[$value['idPub']] = $publication;
         }
@@ -309,14 +301,8 @@ final class Persistance {
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
           $commentaire->setDateCreation($value['dateCom']);
-          if(isset($value['voteCom']))
-            $commentaire->setNbVotes($value['voteCom']);
-          else
-            $commentaire->setNbVotes(0);
-          if(isset($value['voteComUser']))
-            $commentaire->setVoteUtilisateur($value['voteComUser']);
-          else
-            $commentaire->setVoteUtilisateur(0);
+          $commentaire->setNbVotes($value['voteCom']);
+          $commentaire->setVoteUtilisateur($value['voteComUser']);
           $publications[$value['idPub']]->ajouterCommentaire($commentaire);
         }
       } catch (Exception $e) {}
