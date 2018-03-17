@@ -11,7 +11,6 @@
 
     $("#ajouter-publication-form").on("submit", function(e) {
       e.preventDefault();
-      ga('send', 'event','Question','Repondre','Reseau Social',22);
       var datas = $("#ajouter-publication-form").serializeArray();
       datas.push({ name: "action", value: "ajouterPublication" });
       $.ajax({
@@ -31,6 +30,7 @@
             }, 100);
           } else if(jsonResponse.type == 3) {
             var nbReponse = $("<div />").html(jsonResponse.nbReponse).text();
+            ga('send', 'event','Question','Repondre','Reseau Social',22);
             $(".question-separateur").html(nbReponse);
             $("#publication-container").append(output);
             setTimeout(function(){
@@ -129,6 +129,7 @@
       }).done(function (response) {
         var jsonResponse = JSON.parse(response);
         if(jsonResponse.status == "success") {
+          ga('send', 'event','Question','Approuver','Reseau Social',21);
           $(container).find(".vote.active").removeClass("active");
           if(jsonResponse.vote != 0)
             $(icon).addClass("active");
