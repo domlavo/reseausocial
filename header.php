@@ -30,7 +30,7 @@ function renderHeader( $hasNav = false ) {
 		ga('create', 'UA-113554913-4', 'auto');
 		ga('send', {
 			hitType: 'pageview',
-			page: location.pathname
+			page: document.location.pathname
 });
 </script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

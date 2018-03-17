@@ -131,8 +131,10 @@
         if(jsonResponse.status == "success") {
           ga('send', 'event','Question','Approuver','Reseau Social',21);
           $(container).find(".vote.active").removeClass("active");
-          if(jsonResponse.vote != 0)
+          if(jsonResponse.vote != 0){
+            ga('send', 'event','Question','Approuver','Reseau Social',21);
             $(icon).addClass("active");
+          }
           $(container).find(".badge").text(jsonResponse.nbVote);
         }
       });
