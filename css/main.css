@@ -203,6 +203,7 @@ button {
   padding: 0 70px 20px;
   background: #f8f8f8;
   border-top: solid 1px #ddd;
+  min-height: calc(100% - 357px);
 }
 
 .primary-container.reponse {
@@ -673,4 +674,8 @@ li.sidebar-utilisateur-bloc a:hover {
 
 .input-specialite {
     width: 250px;
+}
+
+.publication-specialite {
+    margin-top: 10px;
 }

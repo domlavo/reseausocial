@@ -26,7 +26,7 @@ echo afficherNavigationPrincipale();
 <div class="content">
   <div class="primary hasSidebar">
     <?= $profile->afficher(); ?>
-    <?= afficherNavigationSecondaire('Journal', $_GET['utilisateur']); ?>
+    <?= afficherNavigationSecondaire('Journal', $profile, $utilisateur); ?>
     <div class="primary-container">
       <?php if( $profile->equals($utilisateur) ) : ?>
         <div class="ajouter-publication-box">

@@ -327,7 +327,6 @@ class Question extends Publication {
     ?>
     <div class="publication-header question">
       <p><?= $this->texte ?></p>
-      <span class="badge badge-info"><?= $this->specialite->nom ?></span>
     </div>
     <?php
     return ob_get_clean();
@@ -338,6 +337,9 @@ class Question extends Publication {
     ?>
     <div class="publication-texte">
       <p><?= $this->detail_question ?></p>
+      <div class="publication-specialite">
+        <span class="badge badge-info"><?= $this->specialite->nom ?></span>
+      </div>
     </div>
     <?php
     return ob_get_clean();

@@ -32,7 +32,7 @@ echo afficherNavigationPrincipale();
 <div class="content">
   <div class="primary hasSidebar">
     <?= $profile->afficher(); ?>
-    <?= afficherNavigationSecondaire('Questions', $_GET['utilisateur']); ?>
+    <?= afficherNavigationSecondaire('Questions', $profile, $utilisateur); ?>
     <div class="primary-container">
       <?php if( $profile->equals($utilisateur) ) : ?>
         <div class="ajouter-publication-box">
@@ -61,7 +61,6 @@ echo afficherNavigationPrincipale();
           </form>
         </div>
       <?php endif; ?>
-      </script>
       <ul id="question-container" class="question-container">
         <li class="question-header">
           <div class="question-header-title">Questions</div>
