@@ -20,6 +20,16 @@ function renderHeader( $hasNav = false ) {
 		<link rel="stylesheet" href="./bootstrap-markdown/css/bootstrap-markdown.min.css">
 		<link rel="stylesheet" href="./css/bootstrap-modal.css">
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-113554913-4"></script>
+		<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+		ga('create', 'UA-113554913-4', 'auto');
+		ga('send', 'pageview');
+</script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 		<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 		<script src="./bootstrap-markdown/js/markdown.js"></script>

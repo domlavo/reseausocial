@@ -11,6 +11,7 @@
 
     $("#ajouter-publication-form").on("submit", function(e) {
       e.preventDefault();
+      ga('send', 'event','Question','Repondre','Reseau Social',22);
       var datas = $("#ajouter-publication-form").serializeArray();
       datas.push({ name: "action", value: "ajouterPublication" });
       $.ajax({
