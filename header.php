@@ -28,7 +28,10 @@ function renderHeader( $hasNav = false ) {
 			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 		ga('create', 'UA-113554913-4', 'auto');
-		ga('send', 'pageview');
+		ga('send', {
+			hitType: 'pageview',
+			page: document.location.pathname
+});
 </script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 		<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
