@@ -2,6 +2,7 @@
 
 require_once 'utilisateur.php';
 require_once 'publication.php';
+require_once 'specialite.php';
 require_once 'helper.php';
 
 final class Persistance {
@@ -34,10 +35,17 @@ final class Persistance {
   }
 
   public function recupererUtilisateur($loginID) {
-    $sql = "SELECT  * FROM utilisateur WHERE loginID='$loginID';";
+    $sql = "SELECT  utilisateur.pk_utilisateur AS 'pk_utilisateur', utilisateur.nom AS 'nom', utilisateur.prenom AS 'prenom',
+                    utilisateur.nb_session AS 'nb_session', utilisateur.loginID AS 'loginID', specialite.pk_specialite AS 'specialiteID',
+                    specialite.nom AS 'specialiteNom'
+            FROM utilisateur
+            INNER JOIN specialite ON specialite.pk_specialite = utilisateur.fk_specialite
+            WHERE loginID='$loginID';";
     $resultat = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     if( !empty($resultat) ) {
-      $utilisateur = new Utilisateur($resultat[0]['nom'], $resultat[0]['prenom'], $resultat[0]['nb_session'], $resultat[0]['loginID'], $resultat[0]['fk_specialite']);
+      $specialite = new Specialite($resultat[0]['specialiteNom']);
+      $specialite->id = $resultat[0]['specialiteID'];
+      $utilisateur = new Utilisateur($resultat[0]['nom'], $resultat[0]['prenom'], $resultat[0]['nb_session'], $resultat[0]['loginID'], $specialite);
       $utilisateur->setId($resultat[0]['pk_utilisateur']);
       return $utilisateur;
     }
@@ -51,7 +59,7 @@ final class Persistance {
 
     try {
       $sql = "INSERT INTO utilisateur (nom, prenom, nb_session, loginID, fk_specialite)
-      VALUES ('$utilisateur->nom','$utilisateur->prenom',$utilisateur->nb_session,'$utilisateur->loginID',$utilisateur->specialite);";
+      VALUES ('$utilisateur->nom','$utilisateur->prenom',$utilisateur->nb_session,'$utilisateur->loginID',$utilisateur->specialite->id);";
       $stmt = $this->db->prepare($sql);
       $stmt->execute();
     } catch(Exception $e){
@@ -107,7 +115,9 @@ final class Persistance {
 
       try {
         if( !array_key_exists($value['idPub'], $publications) ) {
-          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userPubSpe'];
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $specialite);
           $user->setId($value['userPubId']);
           $publication = new Publication($value['textePub'], $value['type'], $user, null, $value['specialite']);
           $publication->setId($value['idPub']);
@@ -117,7 +127,9 @@ final class Persistance {
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {
-          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $value['userComSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userComSpe'];
+          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $specialite);
           $user->setId($value['userComId']);
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
@@ -140,10 +152,13 @@ final class Persistance {
       return false;
 
     $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
-                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', reponse.nbReponse AS 'nbReponse',
+                    		pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubSpecialite.pk_specialite AS 'specialiteID',
+                        pubSpecialite.nom AS 'specialiteNom', reponse.nbReponse AS 'nbReponse',
                     		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
                     		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe'
                     FROM publication pub
+                    LEFT JOIN specialite pubSpecialite
+                      ON pub.fk_specialite = pubSpecialite.pk_specialite
                     LEFT JOIN utilisateur pubUser
                     	ON pub.fk_utilisateur = pubUser.pk_utilisateur
                     LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
@@ -168,9 +183,13 @@ final class Persistance {
 
       try {
         if( !array_key_exists($value['idPub'], $publications) ) {
-          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userPubSpe'];
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $specialite);
           $user->setId($value['userPubId']);
-          $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $specialiteQuestion = new Specialite($value['specialiteNom']);
+          $specialiteQuestion->id = $value['specialiteID'];
+          $publication = new Question($value['textePub'], $value['type'], $user, null, $specialiteQuestion);
           $publication->setId($value['idPub']);
           $publication->setDateCreation($value['datePub']);
           $publication->setNbReponse($value['nbReponse']);
@@ -191,15 +210,17 @@ final class Persistance {
       return false;
 
     $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
-                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser',
-                        reponse.nbReponse AS 'nbReponse', pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom',
-                        pubUser.prenom AS 'userPubPrenom', pub.detail_question AS 'detail_question',
+                    		pubSpecialite.pk_specialite AS 'specialiteID', pubSpecialite.nom AS 'specialiteNom', pub.date_creation AS 'datePub',
+                        pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser', reponse.nbReponse AS 'nbReponse',
+                        pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom', pub.detail_question AS 'detail_question',
                     		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
                         com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
                     		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
                     		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
                     		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'voteCom', comUserVote.valeur AS 'voteComUser'
                     FROM publication pub
+                    LEFT JOIN specialite pubSpecialite
+                      ON pub.fk_specialite = pubSpecialite.pk_specialite
                     LEFT JOIN utilisateur pubUser
                     	ON pub.fk_utilisateur = pubUser.pk_utilisateur
                     LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
@@ -235,9 +256,13 @@ final class Persistance {
       $idPub = $value['idPub'];
       try {
         if( !array_key_exists($value['idPub'], $publications) ) {
-          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userPubSpe'];
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $specialite);
           $user->setId($value['userPubId']);
-          $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $specialiteQuestion = new Specialite($value['specialiteNom']);
+          $specialiteQuestion->id = $value['specialiteID'];
+          $publication = new Question($value['textePub'], $value['type'], $user, null, $specialiteQuestion);
           $publication->setId($value['idPub']);
           $publication->setDateCreation($value['datePub']);
           $publication->setNbVotes($value['votePub']);
@@ -247,7 +272,9 @@ final class Persistance {
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {
-          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $value['userComSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userComSpe'];
+          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $specialite);
           $user->setId($value['userComId']);
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
@@ -316,7 +343,9 @@ final class Persistance {
 
       try {
         if( !array_key_exists($value['idPub'], $publications) ) {
-          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userPubSpe'];
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $specialite);
           $user->setId($value['userPubId']);
           $publication = new Reponse($value['textePub'], $value['type'], $user, null, $value['specialite']);
           $publication->setId($value['idPub']);
@@ -329,7 +358,9 @@ final class Persistance {
           $publications[$value['idPub']] = $publication;
         }
         if($value['idCom'] != null) {
-          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $value['userComSpe']);
+          $specialite = new Specialite("");
+          $specialite->id = $value['userComSpe'];
+          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $specialite);
           $user->setId($value['userComId']);
           $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
           $commentaire->setId($value['idCom']);
@@ -360,13 +391,41 @@ final class Persistance {
 
     $utilisateurs = array();
     foreach ($resultat as $value) {
-      $utilisateur = new Utilisateur($value['nom'], $value['prenom'], $value['nb_session'], $value['loginID'], $value['fk_specialite']);
+      $specialite = new Specialite("");
+      $specialite->id = $value['fk_specialite'];
+      $utilisateur = new Utilisateur($value['nom'], $value['prenom'], $value['nb_session'], $value['loginID'], $specialite);
       $utilisateur->setId($value['pk_utilisateur']);
       $utilisateurs[] = $utilisateur;
     }
 
     if(!empty($utilisateurs)) {
       return $utilisateurs;
+    }
+    return false;
+
+  }
+
+  public function recupererSpecialite() {
+
+    $requete = "SELECT * FROM specialite;";
+    $valeurs = array();
+    try {
+      $stmt = $this->db->prepare($requete);
+      $stmt->execute($valeurs);
+      $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(Exception $e){
+      return false;
+    }
+
+    $specialites = array();
+    foreach ($resultat as $value) {
+      $specialite = new Specialite($value["nom"]);
+      $specialite->id = $value['pk_specialite'];
+      $specialites[] = $specialite;
+    }
+
+    if(!empty($specialites)) {
+      return $specialites;
     }
     return false;
 

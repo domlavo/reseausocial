@@ -283,6 +283,7 @@ class Question extends Publication {
     <li id="question-block-<?= $this->id ?>" class="question-block<?= $class ?>">
       <div class="question-titre-bloc">
         <div class="question-titre"><a href="./reponse.php?question=<?= $this->id ?>"><?= $this->texte ?></a></div>
+        <span class="badge badge-info"><?= $this->specialite->nom ?></span>
         <div class="question-sous-titre"><?= $this->dateCreation ?></div>
       </div>
       <div class="question-reponse">
@@ -326,6 +327,7 @@ class Question extends Publication {
     ?>
     <div class="publication-header question">
       <p><?= $this->texte ?></p>
+      <span class="badge badge-info"><?= $this->specialite->nom ?></span>
     </div>
     <?php
     return ob_get_clean();

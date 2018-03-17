@@ -670,3 +670,7 @@ li.sidebar-utilisateur-bloc a {
 li.sidebar-utilisateur-bloc a:hover {
     background: #f3f3f3;
 }
+
+.input-specialite {
+    width: 250px;
+}

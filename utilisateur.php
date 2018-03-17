@@ -25,8 +25,8 @@ class Utilisateur {
   }
 
   public function estValide() {
-    $int = isInt($this->nb_session) && isInt($this->loginID) && isInt($this->specialite);
-    $hasValue = $this->nom != "" && $this->prenom != "" && $this->nb_session != "" && $this->loginID != "" && $this->specialite != "";
+    $int = isInt($this->nb_session) && isInt($this->loginID) && isInt($this->specialite->id);
+    $hasValue = $this->nom != "" && $this->prenom != "" && $this->nb_session != "" && $this->loginID != "" && $this->specialite->id != "";
     return $int && $hasValue;
   }
 
@@ -45,7 +45,7 @@ class Utilisateur {
         <p>Nombre de sessions</p>
       </div>
       <div class="profile-stat-group">
-        <p class="profile-stat"><?= $this->specialite ?></p>
+        <p class="profile-stat"><?= $this->specialite->nom ?></p>
         <p>Spécialité</p>
       </div>
     </div>

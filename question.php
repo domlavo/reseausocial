@@ -15,7 +15,15 @@ if(!$profile) {
   header('Location: index.php');
 }
 
+$specialites = recupererPersistance()->recupererSpecialite();
+if(!$specialites) {
+  header('Location: index.php');
+}
+
 $publications = recupererPersistance()->recupererQuestions($profile);
+
+$autresUtilisateurs = recupererPersistance()->recupereAutreUtilisateur($utilisateur);
+
 
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
@@ -32,11 +40,22 @@ echo afficherNavigationPrincipale();
             <div class="form-group">
               <label for="textePublication">Titre</label>
               <input type="text" class="form-control" id="textePublication" name="textePublication" placeholder="" value="" required="">
+              <div class="input-specialite">
+                <label for="specialite">Spécialité</label>
+                <select class="form-control" id="specialite" name="specialite" required="">
+                  <option value="">Choisir...</option>
+                  <?php
+                  foreach ($specialites as $specialite) {
+                    echo $specialite->afficherOption();
+                  }
+                  ?>
+                </select>
+              </div>
               <label for="detail">Détail</label>
               <textarea id="detail-markdown" name="detail-markdown" rows="10"></textarea>
-              <input id="detail" type="hidden" name="detail" value="">
-              <input type="hidden" name="type" value="2"/>
             </div>
+            <input id="detail" type="hidden" name="detail" value="">
+            <input type="hidden" name="type" value="2"/>
             <button id="submitPublication" type="submit" class="btn btn-primary">Publier</button>
             <div class="clearfix"></div>
           </form>
@@ -63,6 +82,13 @@ echo afficherNavigationPrincipale();
     </div>
   </div>
   <div class="sidebar">
+    <ul class="sidebar-utilisateur-container">
+    <?php
+    foreach ($autresUtilisateurs as $autreUtilisateur) {
+      echo $autreUtilisateur->afficherListe($utilisateur);
+    }
+    ?>
+    </ul>
   </div>
 </div>
 

@@ -34,7 +34,8 @@ class Ajax {
         	'textePublication' => '',
           'type' => '',
           'question' => '',
-          'detail' => ''
+          'detail' => '',
+          'specialite' => ''
         ),
         $params
       )
@@ -51,16 +52,15 @@ class Ajax {
     $config->set('HTML.Allowed', $allowed_tags);
     $purifier = new HTMLPurifier($config);
     try {
-      if($type == 1)
+      if($type == 1) {
         $clean_textePublication = $purifier->purify($textePublication);
         $publication = new Publication($clean_textePublication, $type, $utilisateur);
-      if($type == 2) {
+      } else if($type == 2) {
         $clean_detail = $purifier->purify($detail);
-        $publication = new Question($textePublication, $type, $utilisateur);
+        $publication = new Question($textePublication, $type, $utilisateur, null, $specialite);
         $publication->setNbReponse(0);
         $publication->detail = $clean_detail;
-      }
-      if($type == 3) {
+      } else  if($type == 3) {
         $question = recupererPersistance()->recupererQuestion($question, $utilisateur);
         if( !$question ) {
           echo json_encode($reponse);
