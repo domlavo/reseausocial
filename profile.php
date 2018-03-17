@@ -17,6 +17,8 @@ if(!$profile) {
 
 $publications = recupererPersistance()->recupererPublication($profile, $utilisateur, 1);
 
+$autresUtilisateurs = recupererPersistance()->recupereAutreUtilisateur($utilisateur);
+
 echo renderHeader(true);
 echo afficherNavigationPrincipale();
 ?>
@@ -54,6 +56,13 @@ echo afficherNavigationPrincipale();
     </div>
   </div>
   <div class="sidebar">
+    <ul class="sidebar-utilisateur-container">
+    <?php
+    foreach ($autresUtilisateurs as $autreUtilisateur) {
+      echo $autreUtilisateur->afficherListe($utilisateur);
+    }
+    ?>
+    </ul>
   </div>
 </div>
 

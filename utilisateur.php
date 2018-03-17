@@ -53,6 +53,23 @@ class Utilisateur {
     return ob_get_clean();
   }
 
+  public function afficherListe() {
+    ob_start();
+    ?>
+    <li class="sidebar-utilisateur-bloc">
+      <a href="profile.php?utilisateur=<?= $this->loginID ?>">
+        <div class="sidebar-utilisateur-avatar">
+          <img class="sidebar-utilisateur-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+        </div>
+        <div class="sidebar-utilisateur-nom">
+          <h3><?= $this->prenom . ' ' . $this->nom ?></h3>
+        </div>
+      </a>
+    </li>
+    <?php
+    return ob_get_clean();
+  }
+
   public function equals( $autre ) {
     return is_a($autre, 'Utilisateur') && $this->loginID == $autre->loginID;
   }

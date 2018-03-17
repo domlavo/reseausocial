@@ -346,6 +346,32 @@ final class Persistance {
 
   }
 
+  public function recupereAutreUtilisateur($utilisateur) {
+
+    $requete = "SELECT * FROM utilisateur WHERE pk_utilisateur <> ?;";
+    $valeurs = array( $utilisateur->id );
+    try {
+      $stmt = $this->db->prepare($requete);
+      $stmt->execute($valeurs);
+      $resultat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(Exception $e){
+      return false;
+    }
+
+    $utilisateurs = array();
+    foreach ($resultat as $value) {
+      $utilisateur = new Utilisateur($value['nom'], $value['prenom'], $value['nb_session'], $value['loginID'], $value['fk_specialite']);
+      $utilisateur->setId($value['pk_utilisateur']);
+      $utilisateurs[] = $utilisateur;
+    }
+
+    if(!empty($utilisateurs)) {
+      return $utilisateurs;
+    }
+    return false;
+
+  }
+
   public function ajouterBD($objet) {
 
     if( !is_a($objet, 'IAjouter') )

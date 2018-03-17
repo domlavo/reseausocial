@@ -634,3 +634,39 @@ li.question-header {
 .question-titre a {
     color: #000;
 }
+
+img.sidebar-utilisateur-img-avatar {
+    -webkit-border-radius: 35px;
+    border-radius: 35px;
+    width: 45px;
+}
+
+ul.sidebar-utilisateur-container {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li.sidebar-utilisateur-bloc a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eaeaea;
+    background: #fff;
+    transition: all 300ms ease-in-out;
+}
+
+.sidebar-utilisateur-avatar {
+    margin-right: 10px;
+}
+
+.sidebar-utilisateur-nom h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #737373;
+}
+
+li.sidebar-utilisateur-bloc a:hover {
+    background: #f3f3f3;
+}
