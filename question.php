@@ -30,10 +30,13 @@ echo afficherNavigationPrincipale();
         <div class="ajouter-publication-box">
           <form id="ajouter-publication-form">
             <div class="form-group">
-              <label for="textePublication">Quelle est votre question?</label>
-              <textarea class="form-control" id="textePublication" name="textePublication" rows="3"></textarea>
+              <label for="textePublication">Titre</label>
+              <input type="text" class="form-control" id="textePublication" name="textePublication" placeholder="" value="" required="">
+              <label for="detail">Détail</label>
+              <textarea id="detail-markdown" name="detail-markdown" rows="10"></textarea>
+              <input id="detail" type="hidden" name="detail" value="">
+              <input type="hidden" name="type" value="2"/>
             </div>
-            <input type="hidden" name="type" value="2"/>
             <button id="submitPublication" type="submit" class="btn btn-primary">Publier</button>
             <div class="clearfix"></div>
           </form>

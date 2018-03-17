@@ -44,7 +44,7 @@ function verifierConnection() {
 function ajouterModal($id, $title, $body) {
   ob_start();
   ?>
-  <div class="modal fade" id="<?= $id ?>" tabindex="-1" role="dialog" aria-labelledby="modalCenterTitle" aria-hidden="true">
+  <div class="modal" id="<?= $id ?>" tabindex="-1" role="dialog" aria-labelledby="modalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">

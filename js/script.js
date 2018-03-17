@@ -1,6 +1,14 @@
 (function($) {
   $(function() {
 
+    $("#detail-markdown").markdown({
+      iconlibrary:'fa',
+      language:'fr',
+      onBlur: function(e) {
+        $("#detail").val(e.parseContent());
+      }
+    });
+
     $("#ajouter-publication-form").on("submit", function(e) {
       e.preventDefault();
       var datas = $("#ajouter-publication-form").serializeArray();
@@ -13,11 +21,19 @@
         var jsonResponse = JSON.parse(response);
         if(jsonResponse.status == "success") {
           $("#textePublication").val("");
+          $("#detail-markdown").val("");
           var output = $("<div />").html(jsonResponse.publication).text();
           if(jsonResponse.type == 2) {
             $(output).insertAfter("#question-container .question-header");
             setTimeout(function(){
               $("#question-container").find(".fadeOut").removeClass("fadeOut");
+            }, 100);
+          } else if(jsonResponse.type == 3) {
+            var nbReponse = $("<div />").html(jsonResponse.nbReponse).text();
+            $(".question-separateur").html(nbReponse);
+            $("#publication-container").append(output);
+            setTimeout(function(){
+              $("#publication-container").find(".fadeOut").removeClass("fadeOut");
             }, 100);
           } else {
             $("#publication-container").prepend(output);
@@ -32,6 +48,7 @@
     $(".content").delegate(".ajouter-commentaire-form", "submit", function(e) {
       e.preventDefault();
       var form = $(this);
+      var commentaires = $(form).closest(".publication-content").find(".publication-commentaires");
       var datas = $(form).serializeArray();
       datas.push({ name: "action", value: "ajouterCommentaire" });
       $.ajax({
@@ -43,7 +60,8 @@
         if(jsonResponse.status == "success") {
           $(form).find(".texteCommentaire").val("");
           var output = $("<div />").html(jsonResponse.publication).text();
-          $(form).closest(".publication-commenter").before(output);
+          $(commentaires).append(output);
+          $(commentaires).addClass("aCommentaires");
           setTimeout(function(){
             $(form).closest(".publication-content").find(".fadeOut").removeClass("fadeOut");
           }, 100);

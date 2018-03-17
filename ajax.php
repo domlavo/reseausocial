@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 if( !isset($_POST['action']) ) {
   echo "error";
@@ -18,6 +15,11 @@ require_once 'persistance.php';
 require_once 'helper.php';
 require_once 'publication.php';
 
+if($_POST['action'] == 'ajouterPublication' || $_POST['action'] == 'ajouterCommentaire') {
+  require_once './library/HTMLPurifier.auto.php';
+}
+$allowed_tags = 'a, abbr, acronym, b, blockquote, caption, cite, code, dd, del, dfn, div, dl, dt, em, i, ins, kbd, li, ol, p, pre, s, strike, strong, sub, sup, table, tbody, td, tfoot, th, thead, tr, tt, u, ul, var';
+
 $params = $_POST;
 call_user_func( $handler , $params );
 
@@ -31,7 +33,8 @@ class Ajax {
         array(
         	'textePublication' => '',
           'type' => '',
-          'question' => ''
+          'question' => '',
+          'detail' => ''
         ),
         $params
       )
@@ -44,24 +47,34 @@ class Ajax {
       die();
     }
 
+    $config = HTMLPurifier_Config::createDefault();
+    $config->set('HTML.Allowed', $allowed_tags);
+    $purifier = new HTMLPurifier($config);
     try {
       if($type == 1)
-        $publication = new Publication($textePublication, $type, $utilisateur);
+        $clean_textePublication = $purifier->purify($textePublication);
+        $publication = new Publication($clean_textePublication, $type, $utilisateur);
       if($type == 2) {
+        $clean_detail = $purifier->purify($detail);
         $publication = new Question($textePublication, $type, $utilisateur);
         $publication->setNbReponse(0);
+        $publication->detail = $clean_detail;
       }
       if($type == 3) {
-        $question = recupererPersistance()->recupererQuestion($question);
+        $question = recupererPersistance()->recupererQuestion($question, $utilisateur);
         if( !$question ) {
           echo json_encode($reponse);
           die();
         }
-        $publication = new Reponse($textePublication, $type, $utilisateur, $question->id);
+        $clean_textePublication = $purifier->purify($textePublication);
+        $publication = new Reponse($clean_textePublication, $type, $utilisateur, $question->id);
         $publication->utilisateurQuestion = $question->utilisateur;
+        $question->nbReponse++;
+        $reponse['nbReponse'] = htmlspecialchars($question->formatterNbReponse());
       }
       $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
     } catch(Exception $e) {
+      $reponse['error'] = $e->getMessage();
       echo json_encode($reponse);
       die();
     }
@@ -97,8 +110,12 @@ class Ajax {
       die();
     }
 
+    $config = HTMLPurifier_Config::createDefault();
+    $config->set('HTML.Allowed', $allowed_tags);
+    $purifier = new HTMLPurifier($config);
     try {
-      $publication = new Commentaire($texteCommentaire, 1, $utilisateur, $publication);
+      $clean_texteCommentaire = $purifier->purify($texteCommentaire);
+      $publication = new Commentaire($clean_texteCommentaire, 1, $utilisateur, $publication);
       $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
     } catch(Exception $e) {
       echo json_encode($reponse);
@@ -222,7 +239,7 @@ class Ajax {
       die();
     }
 
-    $question = recupererPersistance()->recupererQuestion($pubid);
+    $question = recupererPersistance()->recupererQuestion($pubid, $utilisateur);
     if( !$question ) {
       echo json_encode($reponse);
       die();

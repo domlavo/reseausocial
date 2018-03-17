@@ -15,7 +15,7 @@ if(!isset($_GET['question'])) {
   header('Location: index.php');
 }
 
-$question = recupererPersistance()->recupererQuestion($_GET['question']);
+$question = recupererPersistance()->recupererQuestion($_GET['question'], $utilisateur);
 if(!$question) {
   header('Location: index.php');
 }
@@ -28,23 +28,14 @@ echo afficherNavigationPrincipale();
 
 <div class="content">
   <div class="primary hasSidebar">
-    <?= $utilisateur->afficher(); ?>
-    <?= afficherNavigationSecondaire('', $utilisateur->loginID); ?>
-    <div class="primary-container">
-      <?php if( $utilisateur->equals($utilisateur) ) : ?>
-        <div class="ajouter-publication-box">
-          <form id="ajouter-publication-form">
-            <div class="form-group">
-              <label for="textePublication">Votre réponse</label>
-              <textarea class="form-control" id="textePublication" name="textePublication" rows="3"></textarea>
-            </div>
-            <input type="hidden" name="type" value="3"/>
-            <input type="hidden" name="question" value="<?= $question->id ?>"/>
-            <button id="submitPublication" type="submit" class="btn btn-primary">Publier</button>
-            <div class="clearfix"></div>
-          </form>
+    <div class="primary-container reponse">
+      <ul class="publication-container">
+        <?= $question->afficherDetail($utilisateur); ?>
+      </ul>
+        <div class="question-separateur">
+          <?= $question->formatterNbReponse(); ?>
         </div>
-      <?php endif; ?>
+
       <ul id="publication-container" data-questionid="<?= $question->id ?>" class="publication-container">
       <?php
       foreach ($publications as $publication) {
@@ -52,6 +43,19 @@ echo afficherNavigationPrincipale();
       }
       ?>
       </ul>
+      <div class="ajouter-publication-box question">
+        <form id="ajouter-publication-form">
+          <div class="form-group">
+            <label for="textePublication">Votre réponse</label>
+            <textarea id="detail-markdown" name="detail-markdown" rows="10"></textarea>
+            <input id="detail" type="hidden" name="textePublication" value="">
+            <input type="hidden" name="type" value="3"/>
+            <input type="hidden" name="question" value="<?= $question->id ?>"/>
+          </div>
+          <button id="submitPublication" type="submit" class="btn btn-primary">Publier</button>
+          <div class="clearfix"></div>
+        </form>
+      </div>
       <?= ajouterModal(
               "modalSupprimerPublication",
               "Supprimer la réponse",

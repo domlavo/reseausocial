@@ -185,25 +185,40 @@ final class Persistance {
 
   }
 
-  public function recupererQuestion($question) {
+  public function recupererQuestion($question, $utilisateur) {
 
     if( !isInt($question) )
       return false;
 
     $requete = "SELECT 	pub.pk_publication AS 'idPub', pub.texte AS 'textePub', pub.fk_type_publication AS 'type', pub.fk_reponse AS 'reponse',
-                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', reponse.nbReponse AS 'nbReponse',
-                    		pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom', pubUser.prenom AS 'userPubPrenom',
-                    		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe'
+                    		pub.fk_specialite AS 'specialite', pub.date_creation AS 'datePub', pubVote.valeur AS 'votePub', pubUserVote.valeur AS 'votePubUser',
+                        reponse.nbReponse AS 'nbReponse', pubUser.pk_utilisateur AS 'userPubId', pubUser.nom AS 'userPubNom',
+                        pubUser.prenom AS 'userPubPrenom', pub.detail_question AS 'detail_question',
+                    		pubUser.nb_session AS 'userPubNbS', pubUser.loginID AS 'userPubLog', pubUser.fk_specialite AS 'userPubSpe',
+                        com.pk_publication AS 'idCom', com.texte AS 'texteCom', com.fk_utilisateur AS 'utilisateurCom',
+                    		com.date_creation AS 'dateCom', comUser.pk_utilisateur AS 'userComId', comUser.nom AS 'userComNom',
+                    		comUser.prenom AS 'userComPrenom', comUser.nb_session AS 'userComNbS', comUser.loginID AS 'userComLog',
+                    		comUser.fk_specialite AS 'userComSpe', comVote.valeur AS 'voteCom', comUserVote.valeur AS 'voteComUser'
                     FROM publication pub
                     LEFT JOIN utilisateur pubUser
                     	ON pub.fk_utilisateur = pubUser.pk_utilisateur
                     LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) pubVote
                     	ON pub.pk_publication = pubVote.fk_publication
+                    LEFT JOIN vote pubUserVote
+                    	ON pub.pk_publication = pubUserVote.fk_publication AND pubUserVote.fk_utilisateur = ?
+                    LEFT JOIN publication com
+                    	ON pub.pk_publication = com.fk_publication AND com.fk_type_publication = 1
+                    LEFT JOIN utilisateur comUser
+                    	ON com.fk_utilisateur = comUser.pk_utilisateur
+                    LEFT JOIN (SELECT fk_publication, SUM(valeur) AS 'valeur' FROM vote GROUP BY fk_publication) comVote
+                    	ON com.pk_publication = comVote.fk_publication
+                    LEFT JOIN vote comUserVote
+                    	ON com.pk_publication = comUserVote.fk_publication AND comUserVote.fk_utilisateur = ?
                     LEFT JOIN (SELECT fk_publication, COUNT(fk_publication) AS 'nbReponse' FROM publication GROUP BY fk_publication) reponse
                     	ON pub.pk_publication = reponse.fk_publication
                     WHERE pub.pk_publication = ? AND pub.fk_publication IS NULL AND pub.fk_type_publication = 2
-                    ORDER BY pub.date_creation DESC;";
-    $valeurs = array( $question );
+                    ORDER BY com.date_creation ASC;";
+    $valeurs = array( $utilisateur->id, $utilisateur->id, $question );
 
     $resultat = array();
     try {
@@ -214,24 +229,42 @@ final class Persistance {
       return false;
     }
 
-    if(empty($resultat)) {
+    $publications = array();
+    $idPub;
+    foreach ($resultat as $value) {
+      $idPub = $value['idPub'];
+      try {
+        if( !array_key_exists($value['idPub'], $publications) ) {
+          $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
+          $user->setId($value['userPubId']);
+          $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $publication->setId($value['idPub']);
+          $publication->setDateCreation($value['datePub']);
+          $publication->setNbVotes($value['votePub']);
+          $publication->setVoteUtilisateur($value['votePubUser']);
+          $publication->setNbReponse($value['nbReponse']);
+          $publication->detail_question = $value['detail_question'];
+          $publications[$value['idPub']] = $publication;
+        }
+        if($value['idCom'] != null) {
+          $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $value['userComSpe']);
+          $user->setId($value['userComId']);
+          $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
+          $commentaire->setId($value['idCom']);
+          $commentaire->setDateCreation($value['dateCom']);
+          $commentaire->setNbVotes($value['voteCom']);
+          $commentaire->setVoteUtilisateur($value['voteComUser']);
+          $publications[$value['idPub']]->ajouterCommentaire($commentaire);
+        }
+      } catch (Exception $e) {}
+
+    }
+
+    if(empty($publications)) {
       return false;
     }
 
-    $value = $resultat[0];
-
-    $publication = false;
-    try {
-      $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $value['userPubSpe']);
-      $user->setId($value['userPubId']);
-      $publication = new Question($value['textePub'], $value['type'], $user, null, $value['specialite']);
-      $publication->aBonneReponse = ($value['reponse'] != NULL && $value['reponse'] != '');
-      $publication->setId($value['idPub']);
-      $publication->setDateCreation($value['datePub']);
-      $publication->setNbReponse($value['nbReponse']);
-    } catch (Exception $e) {}
-
-    return $publication;
+    return $publications[$idPub];
 
   }
 

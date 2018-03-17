@@ -17,7 +17,7 @@ class Publication implements IAjouter, ISupprimer
 
   function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null )
   {
-    if($texte != sanitizeInput($texte) || $texte == "")
+    if($texte == "")
       throw new Exception("Le texte n'est pas conforme");
     $this->texte = $texte;
     $this->type = $type;
@@ -102,6 +102,7 @@ class Publication implements IAjouter, ISupprimer
 
   public function afficher($utilisateur, $fadeOut = false) {
     $class = $fadeOut ? ' fadeOut' : '';
+    $aCommentaires = !empty($this->commentaires) ? ' aCommentaires' : '';
     ob_start();
     ?>
     <li id="publication-block-<?= $this->id ?>" class="publication-block<?= $class ?>">
@@ -110,7 +111,7 @@ class Publication implements IAjouter, ISupprimer
         <?= $this->afficherTitre(); ?>
         <?= $this->afficherContenu(); ?>
         <?= $this->afficherActions($utilisateur); ?>
-        <ul class="publication-commentaires">
+        <ul class="publication-commentaires<?= $aCommentaires ?>">
           <?php
           foreach ($this->commentaires as $commentaire) {
             echo $commentaire->afficher($utilisateur);
@@ -129,25 +130,21 @@ class Publication implements IAjouter, ISupprimer
     ?>
     <div class="publication-avatar">
       <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+      <p class="publication-utilisateur"><strong><?= $this->utilisateur->prenom ?></strong></p>
+      <p class="publication-date"><?= $this->dateCreation ?></p>
     </div>
     <?php
     return ob_get_clean();
   }
 
   protected function afficherTitre() {
-    ob_start();
-    ?>
-    <div class="publication-header">
-      <p><strong><?= $this->utilisateur->prenom ?></strong> a publié <?= $this->dateCreation ?></p>
-    </div>
-    <?php
-    return ob_get_clean();
+    return "";
   }
 
   protected function afficherContenu() {
     ob_start();
     ?>
-    <div class="publication-texte">
+    <div class="publication-texte sans-header">
       <p><?= $this->texte ?></p>
     </div>
     <?php
@@ -219,17 +216,50 @@ class Commentaire extends Publication {
     return ob_get_clean();
   }
 
+  protected function afficherAvatar($utilisateur) {
+    ob_start();
+    ?>
+    <div class="publication-avatar">
+      <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherTitre() {
+    ob_start();
+    ?>
+    <div class="publication-header">
+      <p><strong><?= $this->utilisateur->prenom ?></strong> a commenté <?= $this->dateCreation ?></p>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
 }
 
 class Question extends Publication {
 
-  protected $nbReponse;
+  public $nbReponse;
   public $aBonneReponse;
+  public $detail;
 
   public function __construct( $texte, $type, $utilisateur, $parent = null, $specialite = null ) {
     parent::__construct( $texte, $type, $utilisateur, $parent, $specialite );
     $this->nbReponse = 0;
     $this->aBonneReponse = false;
+    $this->detail = "";
+  }
+
+  public function requeteAjouter() {
+    $requete = "INSERT INTO publication
+                ( texte, fk_type_publication, fk_utilisateur, fk_publication, fk_specialite, detail_question )
+                VALUES ( ?, ?, ?, ?, ?, ? );";
+    $valeurs = array( $this->texte, $this->type, $this->utilisateur->id, $this->parent, $this->specialite, $this->detail );
+    return array(
+      'requete' => $requete,
+      'valeurs' => $valeurs
+    );
   }
 
   public function setNbReponse($nbReponse) {
@@ -237,6 +267,12 @@ class Question extends Publication {
       $this->nbReponse = 0;
     else
       $this->nbReponse = $nbReponse;
+  }
+
+  public function formatterNbReponse() {
+    if($this->nbReponse > 0)
+      return '<p>'. ($this->nbReponse > 1 ? $this->nbReponse . " réponses" : $this->nbReponse . " réponse") . '</p>';
+    return '<p>Aucune réponse</p>';
   }
 
   public function afficher($utilisateur, $fadeOut = false) {
@@ -261,6 +297,60 @@ class Question extends Publication {
     return ob_get_clean();
   }
 
+  public function afficherDetail($utilisateur) {
+    $aCommentaires = !empty($this->commentaires) ? ' aCommentaires' : '';
+    ob_start();
+    ?>
+    <div class="publication-block">
+      <?= parent::afficherAvatar($utilisateur); ?>
+      <div class="publication-content">
+        <?= $this->afficherTitre(); ?>
+        <?= $this->afficherContenu(); ?>
+        <?= $this->afficherActions($utilisateur); ?>
+        <ul class="publication-commentaires<?= $aCommentaires ?>">
+          <?php
+          foreach ($this->commentaires as $commentaire) {
+            echo $commentaire->afficher($utilisateur);
+          }
+          ?>
+        </ul>
+        <?= $this->afficherFormulaireCommenter(); ?>
+      </div>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherTitre() {
+    ob_start();
+    ?>
+    <div class="publication-header question">
+      <p><?= $this->texte ?></p>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherContenu() {
+    ob_start();
+    ?>
+    <div class="publication-texte">
+      <p><?= $this->detail_question ?></p>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherAvatar($utilisateur) {
+    ob_start();
+    ?>
+    <div class="question-avatar">
+      <img class="question-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
 }
 
 class Reponse extends Publication {
@@ -280,6 +370,8 @@ class Reponse extends Publication {
     ?>
     <div class="publication-avatar">
       <img class="publication-img-avatar" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+      <p class="publication-utilisateur"><strong><?= $this->utilisateur->prenom ?></strong></p>
+      <p class="publication-date"><?= $this->dateCreation ?></p>
       <?php if($this->utilisateurQuestion->equals($utilisateur) || $this->estReponse) : ?>
       <a href="#" class="fa fa-check<?= $checkReponse ?>" data-pubid=<?= $this->id ?>></a>
       <?php endif; ?>
