@@ -32,6 +32,10 @@
           } else if(jsonResponse.type == 3) {
             var nbReponse = $("<div />").html(jsonResponse.nbReponse).text();
             ga('send', 'event','Question','Repondre','Reseau Social',22);
+            ga('send', {
+        			hitType: 'pageview',
+        			page: '/repondu.php'
+        		});
             $(".question-separateur").html(nbReponse);
             $("#publication-container").append(output);
             setTimeout(function(){

@@ -25,7 +25,7 @@ echo afficherNavigationPrincipale($utilisateur);
     <?= afficherNavigationSecondaire('Répondre', $utilisateur, $utilisateur); ?>
     <div class="primary-container">
       <?php if(!empty($publications)) : ?>
-      <ul id="question-container" class="question-container">
+      <ul id="question-container" class="question-container aQuestion">
         <li class="question-header">
           <div class="question-header-title">Questions</div>
           <div class="question-header-vote">Réponses</div>

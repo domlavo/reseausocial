@@ -336,7 +336,7 @@ final class Persistance {
           $specialite->id = $value['userComSpe'];
           $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $specialite);
           $user->setId($value['userComId']);
-          $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
+          $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], null);
           $commentaire->setId($value['idCom']);
           $commentaire->setDateCreation($value['dateCom']);
           $commentaire->setNbVotes($value['voteCom']);
@@ -407,7 +407,7 @@ final class Persistance {
           $specialite->id = $value['userPubSpe'];
           $user = new Utilisateur($value['userPubNom'], $value['userPubPrenom'], $value['userPubNbS'], $value['userPubLog'], $specialite);
           $user->setId($value['userPubId']);
-          $publication = new Reponse($value['textePub'], $value['type'], $user, null, $value['specialite']);
+          $publication = new Reponse($value['textePub'], $value['type'], $user, null, null);
           $publication->setId($value['idPub']);
           $publication->setDateCreation($value['datePub']);
           $publication->setNbVotes($value['votePub']);
@@ -422,7 +422,7 @@ final class Persistance {
           $specialite->id = $value['userComSpe'];
           $user = new Utilisateur($value['userComNom'], $value['userComPrenom'], $value['userComNbS'], $value['userComLog'], $specialite);
           $user->setId($value['userComId']);
-          $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], $value['specialite']);
+          $commentaire = new Commentaire($value['texteCom'], $value['type'], $user, $value['idPub'], null);
           $commentaire->setId($value['idCom']);
           $commentaire->setDateCreation($value['dateCom']);
           $commentaire->setNbVotes($value['voteCom']);
