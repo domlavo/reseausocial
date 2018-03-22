@@ -24,6 +24,7 @@
           $("#detail-markdown").val("");
           var output = $("<div />").html(jsonResponse.publication).text();
           if(jsonResponse.type == 2) {
+            $("#question-container").addClass("aQuestion");
             $(output).insertAfter("#question-container .question-header");
             setTimeout(function(){
               $("#question-container").find(".fadeOut").removeClass("fadeOut");
@@ -132,7 +133,6 @@
           ga('send', 'event','Question','Approuver','Reseau Social',21);
           $(container).find(".vote.active").removeClass("active");
           if(jsonResponse.vote != 0){
-            ga('send', 'event','Question','Approuver','Reseau Social',21);
             $(icon).addClass("active");
           }
           $(container).find(".badge").text(jsonResponse.nbVote);
@@ -157,6 +157,7 @@
       }).done(function (response) {
         var jsonResponse = JSON.parse(response);
         if(jsonResponse.status == "success") {
+          ga('send', 'event','Question','Approuver','Reseau Social',21);
           $(".fa-check").removeClass("active");
           if(!isActive)
             $(icon).addClass("active");

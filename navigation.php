@@ -7,7 +7,7 @@ $secondaryNav = array(
     'get' => true,
     'etreUser' => false,
   ),
-  'Questions' => array(
+  'Mes questions' => array(
     'page' => 'question.php',
     'get' => true,
     'etreUser' => false,
@@ -19,11 +19,25 @@ $secondaryNav = array(
   ),
 );
 
-function afficherNavigationPrincipale() {
+function afficherNavigationPrincipale($utilisateur) {
   ob_start();
   ?>
   <ul class="main-nav">
-    <li><a id="signOut" href="index.php">Déconnection</a></li>
+    <ul class="nav navbar-nav navbar-right">
+      <li id="fat-menu" class="dropdown">
+        <a href="#" class="dropdown-toggle" id="drop3" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          Menu
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="drop3">
+          <li><a href="profile.php?utilisateur=<?= $utilisateur->loginID ?>">Journal</a></li>
+          <li><a href="question.php?utilisateur=<?= $utilisateur->loginID ?>">Mes questions</a></li>
+          <li><a href="repondre.php">Répondre</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a class="dropdown-item" id="signOut" href="index.php">Déconnection</a></li>
+        </ul>
+      </li>
+    </ul>
   </ul>
   <script>
     $(function() {

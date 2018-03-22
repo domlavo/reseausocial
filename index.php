@@ -11,16 +11,20 @@ if(isset($_POST['loginID'])) {
   $persistance = recupererPersistance();
   $utilisateur = $persistance->recupererUtilisateur($_POST['loginID']);
   if ($utilisateur) {
-    print_r($utilisateur);
     $_SESSION['loginID'] = $utilisateur->loginID;
     header('Location: profile.php?utilisateur='.$utilisateur->loginID);
   } else {
     if(isset($_POST['nb_session'])) {
-      $nouveauUtilisateur = new Utilisateur($_POST['nom'], $_POST['prenom'], $_POST['nb_session'], $_POST['loginID'], $_POST['specialite']);
+      $specialite = new Specialite("");
+      $specialite->id = $_POST['specialite'];
+      $nouveauUtilisateur = new Utilisateur($_POST['nom'], $_POST['prenom'], $_POST['nb_session'], $_POST['loginID'], $specialite);
 
-      if( $persistance->ajouterUtilisateur($nouveauUtilisateur) ) {
+      $ajouter = $persistance->ajouterUtilisateur($nouveauUtilisateur);
+      if( $ajouter === true ) {
         $_SESSION['loginID'] = $nouveauUtilisateur->loginID;
         header('Location: profile.php?utilisateur='.$nouveauUtilisateur->loginID);
+      } else {
+        echo $ajouter;
       }
 
     }
@@ -63,6 +67,7 @@ if(!isset($_POST['loginID'])) {
 <?php
 } else {
   if (!$utilisateur) {
+    $specialites = recupererPersistance()->recupererSpecialite();
     ?>
 
 <div class="card card-container">
@@ -72,33 +77,28 @@ if(!isset($_POST['loginID'])) {
       <div class="mb-3">
         <label for="prenom">Prénom</label>
         <input type="text" class="form-control" id="prenom" name="prenom" placeholder="" value="<?= $_POST['prenom'] ?>" required="">
-        <div class="invalid-feedback">
-          Valid first name is required.
-        </div>
       </div>
 
       <div class="mb-3">
         <label for="nom">Nom de famille</label>
         <input type="text" class="form-control" id="nom" name="nom" placeholder="" value="<?= $_POST['nom'] ?>" required="">
-        <div class="invalid-feedback">
-          Valid last name is required.
-        </div>
       </div>
 
       <div class="mb-3">
         <label for="nb_session">Nombre de sessions</label>
         <input type="number" class="form-control" id="nb_session" name="nb_session" placeholder="" value="" required="">
-        <div class="invalid-feedback">
-          Valid last name is required.
-        </div>
       </div>
 
       <div class="mb-3">
         <label for="specialite">Spécialité</label>
-        <input type="number" class="form-control" id="specialite" name="specialite" placeholder="" value="" required="">
-        <div class="invalid-feedback">
-          Valid last name is required.
-        </div>
+        <select class="form-control" id="specialite" name="specialite" required="">
+          <option value="">Choisir...</option>
+          <?php
+          foreach ($specialites as $specialite) {
+            echo $specialite->afficherOption();
+          }
+          ?>
+        </select>
       </div>
 
     <input id="loginID" type="hidden" name="loginID" value="<?= $_POST['loginID'] ?>">

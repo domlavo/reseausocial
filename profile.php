@@ -20,7 +20,7 @@ $publications = recupererPersistance()->recupererPublication($profile, $utilisat
 $autresUtilisateurs = recupererPersistance()->recupereAutreUtilisateur($utilisateur);
 
 echo renderHeader(true);
-echo afficherNavigationPrincipale();
+echo afficherNavigationPrincipale($utilisateur);
 ?>
 
 <div class="content">

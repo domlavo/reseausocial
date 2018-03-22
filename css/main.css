@@ -551,6 +551,11 @@ ul#question-container {
     list-style-type: none;
     padding: 0;
     margin: 30px 0;
+    display: none;
+}
+
+ul#question-container.aQuestion {
+    display: block;
 }
 
 ul#question-container li {

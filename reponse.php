@@ -25,7 +25,7 @@ $publications = recupererPersistance()->recupererReponse($utilisateur, $question
 $autresUtilisateurs = recupererPersistance()->recupereAutreUtilisateur($utilisateur);
 
 echo renderHeader(true);
-echo afficherNavigationPrincipale();
+echo afficherNavigationPrincipale($utilisateur);
 ?>
 
 <div class="content">

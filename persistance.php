@@ -54,16 +54,17 @@ final class Persistance {
 
   public function ajouterUtilisateur($utilisateur) {
 
-    if( !is_a($utilisateur, 'Utilisateur') || !$utilisateur->estValide() )
-      return false;
+    if( !is_a($utilisateur, 'Utilisateur') || !$utilisateur->estValide() || !is_a($utilisateur->specialite, 'Specialite') )
+      return 'Les informations ne sont pas valides';
 
     try {
       $sql = "INSERT INTO utilisateur (nom, prenom, nb_session, loginID, fk_specialite)
-      VALUES ('$utilisateur->nom','$utilisateur->prenom',$utilisateur->nb_session,'$utilisateur->loginID',$utilisateur->specialite->id);";
+      VALUES ( ?,?,?,?,? );";
+      $valeurs = array($utilisateur->nom, $utilisateur->prenom, $utilisateur->nb_session, $utilisateur->loginID, $utilisateur->specialite->id );
       $stmt = $this->db->prepare($sql);
-      $stmt->execute();
+      $stmt->execute($valeurs);
     } catch(Exception $e){
-      return false;
+      return $e->getMessage();
     }
     return true;
 
@@ -384,7 +385,7 @@ final class Persistance {
                     LEFT JOIN vote comUserVote
                     	ON com.pk_publication = comUserVote.fk_publication AND comUserVote.fk_utilisateur = ?
                     WHERE pub.fk_publication = ? AND pub.fk_type_publication = 3
-                    ORDER BY pub.date_creation DESC, com.date_creation ASC;";
+                    ORDER BY pub.pk_publication = reponse DESC, coalesce(pubVote.valeur, 0) DESC, pub.date_creation ASC, com.date_creation ASC;";
 
     $valeurs = array( $question->id, $utilisateur->id, $utilisateur->id, $question->id );
 

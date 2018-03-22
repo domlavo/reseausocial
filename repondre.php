@@ -16,7 +16,7 @@ $autresUtilisateurs = recupererPersistance()->recupereAutreUtilisateur($utilisat
 
 
 echo renderHeader(true);
-echo afficherNavigationPrincipale();
+echo afficherNavigationPrincipale($utilisateur);
 ?>
 
 <div class="content">

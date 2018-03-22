@@ -35,6 +35,7 @@ function renderHeader( $hasNav = false ) {
 			page: urlSplit
 		});
 </script>
+		<script src="./js/popper.min.js"></script>
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 		<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 		<script src="./bootstrap-markdown/js/markdown.js"></script>

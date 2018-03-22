@@ -24,15 +24,16 @@ $publications = recupererPersistance()->recupererQuestions($profile);
 
 $autresUtilisateurs = recupererPersistance()->recupereAutreUtilisateur($utilisateur);
 
+$classQuestion = count($publications) > 0 ? ' aQuestion' : '';
 
 echo renderHeader(true);
-echo afficherNavigationPrincipale();
+echo afficherNavigationPrincipale($utilisateur);
 ?>
 
 <div class="content">
   <div class="primary hasSidebar">
     <?= $profile->afficher(); ?>
-    <?= afficherNavigationSecondaire('Questions', $profile, $utilisateur); ?>
+    <?= afficherNavigationSecondaire('Mes questions', $profile, $utilisateur); ?>
     <div class="primary-container">
       <?php if( $profile->equals($utilisateur) ) : ?>
         <div class="ajouter-publication-box">
@@ -61,7 +62,7 @@ echo afficherNavigationPrincipale();
           </form>
         </div>
       <?php endif; ?>
-      <ul id="question-container" class="question-container">
+      <ul id="question-container" class="question-container<?= $classQuestion ?>">
         <li class="question-header">
           <div class="question-header-title">Questions</div>
           <div class="question-header-vote">Réponses</div>
