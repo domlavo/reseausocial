@@ -13,8 +13,8 @@ class Utilisateur {
 
   public function __construct($nom, $prenom, $nb_session, $loginID, $specialite)
   {
-    $this->nom = $nom;
-    $this->prenom = $prenom;
+    $this->nom = htmlspecialchars($nom);
+    $this->prenom = htmlspecialchars($prenom);
     $this->nb_session = $nb_session;
     $this->loginID = $loginID;
     $this->specialite = $specialite;

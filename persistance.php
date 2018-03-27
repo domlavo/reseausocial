@@ -506,7 +506,7 @@ final class Persistance {
       $stmt->execute($params['valeurs']);
       $id = $this->db->lastInsertId();
     } catch(Exception $e){
-      return $e->getMessage();
+      return false;
     }
 
     $objet->setId($id);
@@ -523,14 +523,17 @@ final class Persistance {
     if(!$params)
       return false;
 
+    $estSupprime = false;
     try {
       $stmt = $this->db->prepare($params['requete']);
-      $stmt->execute($params['valeurs']);
+      $estSupprime = $stmt->execute($params['valeurs']);
     } catch(Exception $e){
-      return $e->getMessage();
+      return false;
     }
 
-    return true;
+    if($estSupprime)
+      return true;
+    return false;
 
   }
 

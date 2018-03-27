@@ -45,6 +45,11 @@ echo afficherNavigationPrincipale($utilisateur);
               "Supprimer la publication",
               "Êtes-vous sûr de vouloir supprimer la publication ?" .
               Publication::formulaireSupprimerPublication()) ?>
+      <?= ajouterModal(
+              "modalErreur",
+              "Erreur",
+              "Une erreur est survenue.",
+              "OK") ?>
     </div>
   </div>
   <div class="sidebar">

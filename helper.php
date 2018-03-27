@@ -41,7 +41,7 @@ function verifierConnection() {
 	return recupererPersistance()->recupererUtilisateur($loginID);
 }
 
-function ajouterModal($id, $title, $body) {
+function ajouterModal($id, $title, $body, $boutonConfirmer = 'Confirmer') {
   ob_start();
   ?>
   <div class="modal" id="<?= $id ?>" tabindex="-1" role="dialog" aria-labelledby="modalCenterTitle" aria-hidden="true">
@@ -58,7 +58,7 @@ function ajouterModal($id, $title, $body) {
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-primary modalConfirm">Confirmer</button>
+          <button type="button" class="btn btn-primary modalConfirm"><?= $boutonConfirmer ?></button>
         </div>
       </div>
     </div>

@@ -47,6 +47,10 @@
               $("#publication-container").find(".fadeOut").removeClass("fadeOut");
             }, 100);
           }
+        } else {
+          var erreur = $("<div />").html(jsonResponse.error).text();
+          $("#modalErreur .modal-body").html(erreur);
+          $("#modalErreur").modal("show");
         }
       });
     });
@@ -71,6 +75,10 @@
           setTimeout(function(){
             $(form).closest(".publication-content").find(".fadeOut").removeClass("fadeOut");
           }, 100);
+        } else {
+          var erreur = $("<div />").html(jsonResponse.error).text();
+          $("#modalErreur .modal-body").html(erreur);
+          $("#modalErreur").modal("show");
         }
       });
     });
@@ -88,7 +96,9 @@
     $(".content").delegate(".publication-actions .fa-trash", "click", function(e) {
       e.preventDefault();
       var pubid = $(this).closest(".publication-actions").data("pubid");
+      var estQuestion = $(this).closest(".publication-actions").data("type") == "2";
       $("#idSupprimerPublication").val(pubid);
+      $("#typePublication").val(estQuestion);
       $("#modalSupprimerPublication").modal("show");
     });
 
@@ -108,11 +118,20 @@
         var jsonResponse = JSON.parse(response);
         if(jsonResponse.status == "success") {
           $("#"+jsonResponse.publication).addClass("fadeOut");
-          setTimeout(function(){
-            $("#"+jsonResponse.publication).remove();
-          }, 500);
+          if(jsonResponse.estQuestion == "true") {
+            window.location.reload(true);
+          } else {
+            setTimeout(function(){
+              $("#"+jsonResponse.publication).remove();
+            }, 500);
+          }
+          $("#modalSupprimerPublication").modal("hide");
+        } else {
+          $("#modalSupprimerPublication").modal("hide");
+          var erreur = $("<div />").html(jsonResponse.error).text();
+          $("#modalErreur .modal-body").html(erreur);
+          $("#modalErreur").modal("show");
         }
-        $("#modalSupprimerPublication").modal("hide");
       });
     });
 
@@ -140,6 +159,10 @@
             $(icon).addClass("active");
           }
           $(container).find(".badge").text(jsonResponse.nbVote);
+        } else {
+          var erreur = $("<div />").html(jsonResponse.error).text();
+          $("#modalErreur .modal-body").html(erreur);
+          $("#modalErreur").modal("show");
         }
       });
     });
@@ -165,6 +188,10 @@
           $(".fa-check").removeClass("active");
           if(!isActive)
             $(icon).addClass("active");
+        } else {
+          var erreur = $("<div />").html(jsonResponse.error).text();
+          $("#modalErreur .modal-body").html(erreur);
+          $("#modalErreur").modal("show");
         }
       });
     });

@@ -1,13 +1,23 @@
 <?php
 
 if( !isset($_POST['action']) ) {
-  echo "error";
+  echo json_encode(
+    array(
+      'status' => 'error',
+      'message' => 'Une erreur est survenue'
+    )
+  );
   die();
 }
 
 $handler = array( 'Ajax', $_POST['action']);
 if ( !is_callable($handler) ) {
-  echo "error";
+  echo json_encode(
+    array(
+      'status' => 'error',
+      'message' => 'Une erreur est survenue'
+    )
+  );
   die();
 }
 
@@ -74,13 +84,14 @@ class Ajax {
       }
       $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
     } catch(Exception $e) {
-      $reponse['error'] = $e->getMessage();
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
 
     $newPublication = recupererPersistance()->ajouterBD($publication);
     if(!is_a($newPublication, 'Publication')) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     } else {
@@ -106,6 +117,7 @@ class Ajax {
     $reponse = array('status' => 'error');
     $utilisateur = verifierConnection();
     if(!$utilisateur) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
@@ -118,13 +130,14 @@ class Ajax {
       $publication = new Commentaire($clean_texteCommentaire, 1, $utilisateur, $publication);
       $publication->setDateCreation( date("Y-m-d H:i:s", time()) );
     } catch(Exception $e) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
 
     $newPublication = recupererPersistance()->ajouterBD($publication);
     if(!is_a($newPublication, 'Publication')) {
-      $reponse['status'] = $newPublication;
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     } else {
@@ -140,6 +153,7 @@ class Ajax {
       extractArgs(
         array(
           'idSupprimerPublication' => '',
+          'typePublication' => ''
         ),
         $params
       )
@@ -148,6 +162,7 @@ class Ajax {
     $reponse = array('status' => 'error');
     $utilisateur = verifierConnection();
     if(!$utilisateur) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
@@ -157,16 +172,19 @@ class Ajax {
       $publication = new Publication("nil", 1, $utilisateur);
       $publication->setId($idSupprimerPublication);
     } catch(Exception $e) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
 
-    if(recupererPersistance()->supprimerBD($publication) == "true") {
+    if(recupererPersistance()->supprimerBD($publication) === true) {
       $reponse["status"] = "success";
       $reponse["publication"] = "publication-block-".$idSupprimerPublication;
+      $reponse["estQuestion"] = $typePublication;
       echo json_encode($reponse);
       die();
     } else {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
@@ -185,18 +203,15 @@ class Ajax {
     );
 
     $reponse = array('status' => 'error');
-    if($vote != 1 && $vote != 0 && $vote != -1) {
+    if($vote != 1 && $vote != -1) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
 
     $utilisateur = verifierConnection();
     if(!$utilisateur) {
-      echo json_encode($reponse);
-      die();
-    }
-
-    if( $vote != 1 && $vote != -1 ) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
@@ -215,6 +230,7 @@ class Ajax {
       echo json_encode($reponse);
       die();
     }
+    $reponse['error'] = 'Une erreur est survenue';
     echo json_encode($reponse);
     die();
 
@@ -235,17 +251,20 @@ class Ajax {
     $reponse = array('status' => 'error');
     $utilisateur = verifierConnection();
     if(!$utilisateur) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
 
     $question = recupererPersistance()->recupererQuestion($pubid, $utilisateur);
     if( !$question ) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
 
     if( !$utilisateur->equals($question->utilisateur) ) {
+      $reponse['error'] = 'Une erreur est survenue';
       echo json_encode($reponse);
       die();
     }
@@ -259,6 +278,7 @@ class Ajax {
       die();
     }
 
+    $reponse['error'] = 'Une erreur est survenue';
     echo json_encode($reponse);
     die();
 

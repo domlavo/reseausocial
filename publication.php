@@ -192,6 +192,7 @@ class Publication implements IAjouter, ISupprimer
     ?>
     <form id="form-supprimer-publication">
       <input type="hidden" id="idSupprimerPublication" name="idSupprimerPublication" value="">
+      <input type="hidden" id="typePublication" name="typePublication" value="">
     </form>
     <?php
     return ob_get_clean();
@@ -340,6 +341,24 @@ class Question extends Publication {
       <div class="publication-specialite">
         <span class="badge badge-info"><?= $this->specialite->nom ?></span>
       </div>
+    </div>
+    <?php
+    return ob_get_clean();
+  }
+
+  protected function afficherActions($utilisateur, $avecReply = true) {
+    ob_start();
+    ?>
+    <div class="publication-actions" data-pubid=<?= $this->id ?> data-type=<?= $this->type ?>>
+      <?php if($avecReply) : ?>
+        <a href="#" class="fa fa-reply"></a>
+      <?php endif; ?>
+      <a href="#" data-vote="1" class="fa fa-thumbs-o-up vote<?= $this->determinerClass('up'); ?>"></a>
+      <a href="#" data-vote="-1" class="fa fa-thumbs-o-down vote<?= $this->determinerClass('down'); ?>"></a>
+      <span class="badge badge-pill badge-primary"><?= $this->getNbVotes() ?></span>
+      <?php if($this->utilisateur->equals($utilisateur)) : ?>
+        <a href="#" class="fa fa-trash"></a>
+      <?php endif; ?>
     </div>
     <?php
     return ob_get_clean();
