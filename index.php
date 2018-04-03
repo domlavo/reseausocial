@@ -35,6 +35,28 @@ if(isset($_POST['token'])) {
 
 echo renderHeader();
 ?>
+<script>
+  function onSignIn(googleUser) {
+
+    var profile = googleUser.getBasicProfile();
+    var id_token = googleUser.getAuthResponse().id_token;
+    jQuery('#token').val(id_token);
+    jQuery('#nom').val(profile.getFamilyName());
+    jQuery('#prenom').val(profile.getGivenName());
+    jQuery('#form_connection').submit();
+
+  }
+  function onSignOut() {
+      if(!gapi.auth2){
+        gapi.load('auth2', function() {
+          gapi.auth2.init();
+        });
+      }
+      gapi.auth2.getAuthInstance().signOut().then(function() {
+        window.location = window.location.href;
+      });
+  }
+</script>
 
 <div class="top-section"></div>
 <div class="bottom-section"></div>
@@ -53,19 +75,6 @@ if(!isset($_POST['token'])) {
     <div class="g-signin2" data-onsuccess="onSignIn" data-theme="light" data-longtitle="true"></div>
   </form>
 </div>
-
-<script>
-  function onSignIn(googleUser) {
-
-    var profile = googleUser.getBasicProfile();
-    var id_token = googleUser.getAuthResponse().id_token;
-    jQuery('#token').val(id_token);
-    jQuery('#nom').val(profile.getFamilyName());
-    jQuery('#prenom').val(profile.getGivenName());
-    jQuery('#form_connection').submit();
-
-  }
-</script>
 
 <?php
 } else {
@@ -106,16 +115,8 @@ if(!isset($_POST['token'])) {
 
     <input id="token" type="hidden" name="token" value="<?= $_POST['token'] ?>">
 
-    <button class="btn btn-primary btn-lg btn-block" type="submit">Soumettre</button>
-    <a href="#" onclick="signOut();">Sign out</a>
-    <script>
-      function signOut() {
-        var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then(function () {
-          console.log('User signed out.');
-        });
-      }
-    </script>
+    <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Soumettre</button>
+    <a href="index.php" onclick="onSignOut();">Déconnecter</a>
   </form>
 </div>
 

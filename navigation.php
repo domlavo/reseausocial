@@ -42,8 +42,14 @@ function afficherNavigationPrincipale($utilisateur) {
   <script>
     $(function() {
       $("#signOut").on("click", function() {
-        var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut();
+        if(!gapi.auth2){
+          gapi.load('auth2', function() {
+            gapi.auth2.init();
+          });
+        }
+        gapi.auth2.getAuthInstance().signOut().then(function() {
+          window.location = window.location.href;
+        });
       });
     });
   </script>

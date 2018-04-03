@@ -89,8 +89,10 @@ echo afficherNavigationPrincipale($utilisateur);
   <div class="sidebar">
     <ul class="sidebar-utilisateur-container">
     <?php
-    foreach ($autresUtilisateurs as $autreUtilisateur) {
-      echo $autreUtilisateur->afficherListe($utilisateur);
+    if( !empty($autresUtilisateurs) ) {
+      foreach ($autresUtilisateurs as $autreUtilisateur) {
+        echo $autreUtilisateur->afficherListe($utilisateur);
+      }
     }
     ?>
     </ul>
